@@ -1,0 +1,2 @@
+*.cs text eol=lf
+RawAssets/** filter=lfs diff=lfs merge=lfs -text
