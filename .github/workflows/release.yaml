@@ -189,7 +189,8 @@ jobs:
           BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
         run: |
           for channel in $(ls tmp); do
-          echo "$channel"
+            echo "$channel"
+            ls tmp/${channel}
             ./butler push \
               --fix-permissions \
               --userversion='${{ needs.get-version.outputs.version }}' \
