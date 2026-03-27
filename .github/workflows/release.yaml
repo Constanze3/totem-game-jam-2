@@ -37,7 +37,7 @@ jobs:
         id: strip-version
         run: |
           VERSION_STRIPPED="${VERSION:1}"
-          echo "version-stripped=$" >> "$GITHUB_OUTPUT"
+          echo "version-stripped=$VERSION_STRIPPED" >> "$GITHUB_OUTPUT"
     outputs:
       version-stripped: ${{ steps.strip-version.outputs.version-stripped }}
   
