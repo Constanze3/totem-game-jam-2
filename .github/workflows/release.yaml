@@ -136,8 +136,9 @@ jobs:
             hdiutil create -fs HFS+ -volname '${{ env.PROJECT_NAME }}' -srcfolder '${{ matrix.target }}' '${{ env.package }}'
           else
             ls -l .
-            chmod -R u+rwX .
-            zip --recurse-paths '${{ env.package }}' '${{ matrix.target }}'
+            sudo chmod -R u+rwX .
+            ls -l .
+            sudo zip --recurse-paths '${{ env.package }}' '${{ matrix.target }}'
           fi
 
       - name: Package app (Windows)
