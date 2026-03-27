@@ -195,5 +195,5 @@ jobs:
               --fix-permissions \
               --userversion='${{ needs.get-version.outputs.version }}' \
               tmp/"${channel}"/* \
-              '${{ secrets.ITCH_TARGET }}':"${channel#package-}"
+              '${{ env.ITCH_TARGET }}':"${channel#package-}"
           done
