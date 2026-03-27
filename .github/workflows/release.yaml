@@ -98,34 +98,34 @@ jobs:
           restore-keys: |
             Library-
 
-      #- name: Build
-      #  uses: game-ci/unity-builder@v4
-      #  env:
-      #    UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-      #    UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      #    UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-      #    UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-      #  with:
-      #    projectPath: ${{ env.PROJECT_PATH }}
-      #    unityVersion: ${{ env.UNITY_VERSION }} 
-      #    targetPlatform: ${{ matrix.target }}
-      #    buildsPath: tmp/build
-      #    buildName: ${{ env.PROJECT_NAME }}
-      #    versioning: Custom
-      #    version: ${{ env.VERSION_STRIPPED }}
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }} 
+          targetPlatform: ${{ matrix.target }}
+          buildsPath: tmp/build
+          buildName: ${{ env.PROJECT_NAME }}
+          versioning: Custom
+          version: ${{ env.VERSION_STRIPPED }}
 
-      - name: FakeBuild (non-Windows)
-        if: ${{ matrix.platform != 'windows' }}
-        run: |
-          mkdir -p tmp/build/${{ matrix.target }}
-          echo 'This is a test' >> tmp/build/${{ matrix.target }}/hello.txt
+      # - name: FakeBuild (non-Windows)
+      #   if: ${{ matrix.platform != 'windows' }}
+      #   run: |
+      #     mkdir -p tmp/build/${{ matrix.target }}
+      #     echo 'This is a test' >> tmp/build/${{ matrix.target }}/hello.txt
       
-      - name: FakeBuild (Windows)
-        if: matrix.platform == 'windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path tmp/build/${{ matrix.target }} -Force
-          "This is a test" | Out-File -FilePath tmp/build/${{ matrix.target }}/hello.txt -Append
+      # - name: FakeBuild (Windows)
+      #   if: matrix.platform == 'windows'
+      #   shell: pwsh
+      #   run: |
+      #     New-Item -ItemType Directory -Path tmp/build/${{ matrix.target }} -Force
+      #     "This is a test" | Out-File -FilePath tmp/build/${{ matrix.target }}/hello.txt -Append
 
       - name: Package app (non-Windows)
         if: ${{ matrix.platform != 'windows' }}
