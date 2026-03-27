@@ -50,9 +50,6 @@ jobs:
       VERSION: ${{ needs.get-version.outputs.version }}
       VERSION_STRIPPED: ${{ needs.strip-version.outputs.version-stripped }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      PROJECT_PATH:
-      PROJECT_NAME:
-      UNITY_VERSION:
     strategy:
       fail-fast: false
       matrix:
