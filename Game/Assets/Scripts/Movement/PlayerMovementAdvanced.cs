@@ -5,8 +5,7 @@ using TMPro;
 
 public class PlayerMovementAdvanced : MonoBehaviour
 {
-    [Header("Movement")]
-    private float moveSpeed;
+    [Header("Movement")] private float moveSpeed;
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
     public float walkSpeed;
@@ -19,29 +18,24 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     public float groundDrag;
 
-    [Header("Jumping")]
-    public float jumpForce;
+    [Header("Jumping")] public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
     bool readyToJump;
 
-    [Header("Crouching")]
-    public float crouchSpeed;
+    [Header("Crouching")] public float crouchSpeed;
     public float crouchYScale;
     private float startYScale;
 
-    [Header("Keybinds")]
-    public KeyCode jumpKey = KeyCode.Space;
+    [Header("Keybinds")] public KeyCode jumpKey = KeyCode.Space;
     public KeyCode sprintKey = KeyCode.LeftShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
 
-    [Header("Ground Check")]
-    public float playerHeight;
+    [Header("Ground Check")] public float playerHeight;
     public LayerMask whatIsGround;
     bool grounded;
 
-    [Header("Slope Handling")]
-    public float maxSlopeAngle;
+    [Header("Slope Handling")] public float maxSlopeAngle;
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
@@ -56,6 +50,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
     Rigidbody rb;
 
     public MovementState state;
+
     public enum MovementState
     {
         walking,
@@ -121,7 +116,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
 
         // start crouch
-        if (Input.GetKeyDown(crouchKey) && horizontalInput == 0 && verticalInput == 0)
+        if (Input.GetKeyDown(crouchKey)) //Add this if you want slide "&& horizontalInput == 0 && verticalInput == 0"
         {
             transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
             rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
@@ -168,7 +163,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
 
         // Mode - Sprinting
-        else if (grounded && Input.GetKey(sprintKey))
+        else if (grounded && Input.GetKey(sprintKey) && !Input.GetKey(crouchKey)) //Change this if you want slide
         {
             state = MovementState.sprinting;
             desiredMoveSpeed = sprintSpeed;
@@ -188,12 +183,29 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
 
         // check if desired move speed has changed drastically
+
+        /* Add this part back for sliding.
         if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
         {
             StopAllCoroutines();
             StartCoroutine(SmoothlyLerpMoveSpeed());
 
             print("Lerp Started!");
+        }
+        else
+        {
+            moveSpeed = desiredMoveSpeed;
+        }
+        */
+        if (state == MovementState.crouching || state == MovementState.sprinting)
+        {
+            StopAllCoroutines();
+            moveSpeed = desiredMoveSpeed;
+        }
+        else if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
+        {
+            StopAllCoroutines();
+            StartCoroutine(SmoothlyLerpMoveSpeed());
         }
         else
         {
@@ -253,7 +265,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
 
         // turn gravity off while on slope
-        if(!wallrunning) rb.useGravity = !OnSlope();
+        if (!wallrunning) rb.useGravity = !OnSlope();
     }
 
     private void SpeedControl()
@@ -288,6 +300,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
+
     private void ResetJump()
     {
         readyToJump = true;
