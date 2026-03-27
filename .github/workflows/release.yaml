@@ -114,12 +114,18 @@ jobs:
       #     versioning: Custom
       #     version: ${{ env.VERSION_STRIPPED }}
 
-      - name: FakeBuild
+      - name: FakeBuild (non-Windows)
         if: ${{ matrix.platform != 'windows' }}
         run: |
           mkdir -p tmp/build/${{ matrix.target }}
           echo 'This is a test' >> tmp/build/${{ matrix.target }}/hello.txt
-
+      
+      - name: FakeBuild (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path tmp/build/${{ matrix.target }} -Force
+          "This is a test" | Out-File -FilePath tmp/build/${{ matrix.target }}/hello.txt -Append
 
       - name: Package app (non-Windows)
         if: ${{ matrix.platform != 'windows' }}
@@ -154,7 +160,7 @@ jobs:
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
-
+                
   # Upload all packages to itch.io.
   upload-to-itch:
     runs-on: ubuntu-latest
