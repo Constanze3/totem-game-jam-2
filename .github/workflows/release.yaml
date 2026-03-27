@@ -127,6 +127,18 @@ jobs:
       #     New-Item -ItemType Directory -Path tmp/build/${{ matrix.target }} -Force
       #     "This is a test" | Out-File -FilePath tmp/build/${{ matrix.target }}/hello.txt -Append
 
+      - name: Clean linux build folder
+        if: ${{ matrix.platform == 'linux' }}
+        working-directory: tmp/build
+        run: |
+          CLEANED_FOLDER="${{ matrix.target }}-cleaned"
+          mkdir $CLEANED_FOLDER
+          mv ${{ matrix.target }}/${{ env.PROJECT_NAME }}_Data $CLEANED_FOLDER
+          mv ${{ matrix.target }}/${{ env.PROJECT_NAME }} $CLEANED_FOLDER
+          mv ${{ matrix.target }} ${{ matrix.target }}-raw
+          mv $CLEANED_FOLDER ${{ matrix.target }}
+
+
       - name: Package app (non-Windows)
         if: ${{ matrix.platform != 'windows' }}
         working-directory: tmp/build
