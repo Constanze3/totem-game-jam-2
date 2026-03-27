@@ -76,7 +76,15 @@ jobs:
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
+    defaults:
+      run:
+        shell: bash
     steps:
+      - name: Set up environment
+        run: |
+          PACKAGE="${PROJECT_NAME}-${{ matrix.platform }}${{ matrix.package_ext }}"
+          echo "package=$PACKAGE" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -112,21 +120,21 @@ jobs:
         run: |
           if [ '${{ matrix.platform }}' = 'macos' ]; then
             ln -s /Applications .
-            hdiutil create -fs HFS+ -volname 'build.${{ matrix.target }}' -srcfolder . 'build.${{ matrix.package_ext }}'
+            hdiutil create -fs HFS+ -volname 'build${{ matrix.target }}' -srcfolder . '${{ env.package }}'
           else
-            zip --recurse-paths 'build.${{ matrix.package_ext }}' '${{ matrix.target }}'
+            zip --recurse-paths '${{ env.package }}' '${{ matrix.target }}'
           fi
 
       - name: Package app (Windows)
         if: matrix.platform == 'windows'
         working-directory: tmp/build
         shell: pwsh
-        run: Compress-Archive -Path '${{ matrix.target }}' -DestinationPath 'build.${{matrix.package_ext}}'
+        run: Compress-Archive -Path '${{ matrix.target }}' -DestinationPath '${{ env.package }}'
 
       - name: Upload package to artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: build.${{ matrix.package_ext }}
+          path: tmp/build/${{ env.package }}
           name: package-${{ matrix.platform }}
           retention-days: 1
 
@@ -134,8 +142,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build.${{ matrix.package_ext }}
-          asset_name: ${{ env.PROJECT_NAME }}-${{ matrix.platform }}.zip
+          file: tmp/build/${{ env.package }}
+          asset_name: ${{ env.package }} 
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
