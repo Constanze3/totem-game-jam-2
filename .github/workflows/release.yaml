@@ -85,9 +85,9 @@ jobs:
           version: ${{ env.VERSION_STRIPPED }}
 
       - name: Finish package
-        working-directory: tmp/build/StandaloneWindows64
+        working-directory: tmp/build
         shell: pwsh
-        run: Compress-Archive -Path ${{ env.PROJECT_NAME }} -DestinationPath 'build.zip'
+        run: Compress-Archive -Path StandaloneWindows64 -DestinationPath 'build.zip'
 
       - name: Upload package to artifacts
         uses: actions/upload-artifact@v4
