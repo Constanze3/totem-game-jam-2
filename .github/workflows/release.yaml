@@ -132,12 +132,11 @@ jobs:
         working-directory: tmp/build
         run: |
           CLEANED_FOLDER="${{ matrix.target }}-cleaned"
-          mkdir $CLEANED_FOLDER
-          mv ${{ matrix.target }}/${{ env.PROJECT_NAME }}_Data $CLEANED_FOLDER
-          mv ${{ matrix.target }}/${{ env.PROJECT_NAME }} $CLEANED_FOLDER
-          mv ${{ matrix.target }} ${{ matrix.target }}-raw
-          mv $CLEANED_FOLDER ${{ matrix.target }}
-
+          sudo mkdir $CLEANED_FOLDER
+          sudo mv ${{ matrix.target }}/${{ env.PROJECT_NAME }}_Data $CLEANED_FOLDER
+          sudo mv ${{ matrix.target }}/${{ env.PROJECT_NAME }} $CLEANED_FOLDER
+          sudo mv ${{ matrix.target }} ${{ matrix.target }}-raw
+          sudo mv $CLEANED_FOLDER ${{ matrix.target }}
 
       - name: Package app (non-Windows)
         if: ${{ matrix.platform != 'windows' }}
@@ -147,9 +146,6 @@ jobs:
             ln -s /Applications .
             hdiutil create -fs HFS+ -volname '${{ env.PROJECT_NAME }}' -srcfolder '${{ matrix.target }}' '${{ env.package }}'
           else
-            ls -l .
-            sudo chmod -R u+rwX .
-            ls -l .
             sudo zip --recurse-paths '${{ env.package }}' '${{ matrix.target }}'
           fi
 
