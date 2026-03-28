@@ -54,25 +54,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: web
-            target: WebGL
-            package_ext: .zip
-            runner: ubuntu-latest
+          # - platform: web
+          #   target: WebGL
+          #   package_ext: .zip
+          #   runner: ubuntu-latest
 
-          - platform: windows
-            target: StandaloneWindows64
-            package_ext: .zip
-            runner: windows-latest
+          # - platform: windows
+          #   target: StandaloneWindows64
+          #   package_ext: .zip
+          #   runner: windows-latest
 
           - platform: linux
             target: StandaloneLinux64
             package_ext: .zip
             runner: ubuntu-latest
           
-          - platform: macos
-            target: StandaloneOSX
-            package_ext: .dmg
-            runner: macos-latest
+          # - platform: macos
+          #   target: StandaloneOSX
+          #   package_ext: .dmg
+          #   runner: macos-latest
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
