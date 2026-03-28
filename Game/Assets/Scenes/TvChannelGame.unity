@@ -3643,6 +3643,8 @@ MonoBehaviour:
   channelTextures:
   - {fileID: 2800000, guid: 614f4f1802729de40a3348aca1d91ecc, type: 3}
   - {fileID: 2800000, guid: b65fefabbd8af2a44a462b73431680a1, type: 3}
+  - {fileID: 2800000, guid: c86743a21bd1cca4d86aabbb2ca7312d, type: 3}
+  - {fileID: 2800000, guid: f91799a6417c3ca409adc1230029d235, type: 3}
 --- !u!1 &1218649094
 GameObject:
   m_ObjectHideFlags: 0
