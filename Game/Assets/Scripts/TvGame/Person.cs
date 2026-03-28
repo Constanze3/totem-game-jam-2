@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Person : MonoBehaviour
 {
-    public int rage_score = 0;
-    public int rage_limit = 100;
+    public int rageScore = 0;
+    public int rageLimit = 100;
 
     public float rageIncreaseTimer = 1f;
 
@@ -17,7 +17,7 @@ public class Person : MonoBehaviour
         {
             if (!satisfied)
             {
-                rage_score += 1;
+                rageScore += 1;
             }
             rageIncreaseTimer = 0f;
         }
@@ -25,6 +25,6 @@ public class Person : MonoBehaviour
 
     public void resetRage()
     {
-        rage_score = 0;
+        rageScore = 0;
     }
 }

@@ -1,65 +1,29 @@
 using System;
 using System.Collections;
-using System.Runtime.Serialization;
 using System.Text;
 using TMPro;
 using UnityEngine;
 
-//using System.Diagnostics;
-
+[RequireComponent(typeof(Renderer))]
 public class TVController : MonoBehaviour
 {
-    public static TVController Instance;
+    public float inputDelay = 1.0f;
+    public int correctChannelCodeLength = 4;
+    public TMP_Text displayText;
+    public Person[] people;
+    public Texture2D[] channelTextures;
 
-    private StringBuilder inputBuffer = new StringBuilder();
-    private Coroutine inputCoroutine;
-
-    [SerializeField]
-    private float inputDelay = 1.0f;
-
-    [SerializeField]
-    private TMP_Text displayText;
-
-    [SerializeField]
-    private Person[] people;
-
-    [SerializeField]
-    private int channelCodeLength = 4;
-
-    private int currentPersonIndex = 0;
-
+    private int currentlySatisfiedPersonIndex = 0;
     private string correctChannelCode = "";
+    private StringBuilder inputBuffer = new StringBuilder();
+    private Coroutine inputTimeoutCoroutine;
+    private int currentChannelTextureIndex = 0;
 
-    [SerializeField]
-    private Texture2D[] channelTextures;
-
-    private Renderer screenRenderer;
-
-    void Awake()
-    {
-        Instance = this;
-    }
+    private Renderer tvScreenRenderer;
 
     void OnEnable()
     {
         Remote.OnRemoteButtonPressed += HandleButton;
-    }
-
-    void Start()
-    {
-        screenRenderer = GetComponent<Renderer>();
-
-        correctChannelCode = GenerateChannelCode(channelCodeLength);
-
-        for (int i = 0; i < people.Length; i++)
-        {
-            if (i != currentPersonIndex)
-            {
-                people[i].satisfied = true;
-            }
-        }
-
-        screenRenderer.material.mainTexture = channelTextures[0];
     }
 
     void OnDisable()
@@ -67,27 +31,32 @@ public class TVController : MonoBehaviour
         Remote.OnRemoteButtonPressed -= HandleButton;
     }
 
+    void Start()
+    {
+        tvScreenRenderer = GetComponent<Renderer>();
+        ChangeChannel();
+    }
+
     void HandleButton(string buttonName)
     {
         inputBuffer.Append(buttonName);
-
         displayText.text = inputBuffer.ToString();
 
-        // Restart timeout coroutine
-        if (inputCoroutine != null)
-            StopCoroutine(inputCoroutine);
-
-        inputCoroutine = StartCoroutine(InputTimeout());
+        // Restart input timeout coroutine coroutine
+        if (inputTimeoutCoroutine != null)
+        {
+            StopCoroutine(inputTimeoutCoroutine);
+        }
+        inputTimeoutCoroutine = StartCoroutine(InputTimeout());
     }
 
     IEnumerator InputTimeout()
     {
         yield return new WaitForSeconds(inputDelay);
-
-        CommitChannel();
+        CommitChannelCode();
     }
 
-    void CommitChannel()
+    private void CommitChannelCode()
     {
         if (inputBuffer.Length == 0)
         {
@@ -97,35 +66,39 @@ public class TVController : MonoBehaviour
         displayText.text = "";
 
         if (inputBuffer.ToString() == correctChannelCode)
-            ChangeChannel();
-
-        inputBuffer.Clear();
-        inputCoroutine = null;
-    }
-
-    void ChangeChannel()
-    {
-        // TODO: Implement visuals and channel switching logic here
-        Debug.Log("Switching to channel: " + correctChannelCode);
-
-        int newImageIndex = 0;
-
-        while (newImageIndex == Array.IndexOf(channelTextures, screenRenderer.material.mainTexture))
         {
-            newImageIndex = UnityEngine.Random.Range(0, channelTextures.Length);
+            ChangeChannel();
         }
 
-        screenRenderer.material.mainTexture = channelTextures[newImageIndex];
-
-        people[currentPersonIndex].satisfied = true;
-        people[currentPersonIndex].resetRage();
-        currentPersonIndex = (currentPersonIndex + 1) % people.Length;
-        Debug.Log("New dissatisfied person: " + ((currentPersonIndex + 1) % people.Length));
-        people[currentPersonIndex].satisfied = false;
-        correctChannelCode = GenerateChannelCode(channelCodeLength);
+        inputBuffer.Clear();
+        StopCoroutine(inputTimeoutCoroutine);
     }
 
-    String GenerateChannelCode(int length)
+    private void ChangeChannel()
+    {
+        Debug.Log("Switching to channel: " + correctChannelCode);
+
+        var newChannelTextureIndex = currentChannelTextureIndex;
+        while (newChannelTextureIndex == currentChannelTextureIndex)
+        {
+            newChannelTextureIndex = UnityEngine.Random.Range(0, channelTextures.Length);
+        }
+
+        tvScreenRenderer.material.mainTexture = channelTextures[newChannelTextureIndex];
+
+        people[currentlySatisfiedPersonIndex].satisfied = true;
+        people[currentlySatisfiedPersonIndex].resetRage();
+
+        currentlySatisfiedPersonIndex = (currentlySatisfiedPersonIndex + 1) % people.Length;
+        people[currentlySatisfiedPersonIndex].satisfied = false;
+        Debug.Log(
+            "New dissatisfied person: " + ((currentlySatisfiedPersonIndex + 1) % people.Length)
+        );
+
+        correctChannelCode = GenerateChannelCode(correctChannelCodeLength);
+    }
+
+    private String GenerateChannelCode(int length)
     {
         StringBuilder code = new StringBuilder();
 
