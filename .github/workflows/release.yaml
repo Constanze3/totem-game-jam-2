@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version - in the form of v1.2.3'
+        description: "Version - in the form of v1.2.3"
         required: true
         type: string
 
 env:
-  PROJECT_NAME: ${{ vars.PROJECT_NAME || 'DefaultProjectName' }}  
+  PROJECT_NAME: ${{ vars.PROJECT_NAME || 'DefaultProjectName' }}
   ITCH_TARGET: ${{ vars.ITCH_TARGET }}
   PROJECT_PATH: ${{ vars.PROJECT_PATH }}
   UNITY_VERSION: 6000.4.0f1
@@ -26,10 +26,9 @@ jobs:
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
     outputs:
       version: ${{ inputs.version || steps.tag.outputs.tag }}
-  
+
   strip-version:
-    needs:
-        get-version
+    needs: get-version
     env:
       VERSION: ${{ needs.get-version.outputs.version }}
     runs-on: ubuntu-latest
@@ -41,7 +40,7 @@ jobs:
           echo "version-stripped=$VERSION_STRIPPED" >> "$GITHUB_OUTPUT"
     outputs:
       version-stripped: ${{ steps.strip-version.outputs.version-stripped }}
-  
+
   build:
     needs:
       - get-version
@@ -68,7 +67,7 @@ jobs:
             target: StandaloneLinux64
             package_ext: .zip
             runner: ubuntu-latest
-          
+
           - platform: macos
             target: StandaloneOSX
             package_ext: .dmg
@@ -107,7 +106,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           projectPath: ${{ env.PROJECT_PATH }}
-          unityVersion: ${{ env.UNITY_VERSION }} 
+          unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: ${{ matrix.target }}
           buildsPath: tmp/build
           buildName: ${{ env.PROJECT_NAME }}
@@ -119,7 +118,7 @@ jobs:
       #   run: |
       #     mkdir -p tmp/build/${{ matrix.target }}
       #     echo 'This is a test' >> tmp/build/${{ matrix.target }}/${{ env.PROJECT_NAME }}
-      
+
       # - name: FakeBuild (Windows)
       #   if: matrix.platform == 'windows'
       #   shell: pwsh
@@ -160,11 +159,11 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: tmp/build/${{ env.package }}
-          asset_name: ${{ env.package }} 
+          asset_name: ${{ env.package }}
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
-                
+
   # Upload all packages to itch.io.
   upload-to-itch:
     runs-on: ubuntu-latest
