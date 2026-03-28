@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_NAME: ${{ vars.PROJECT_NAME || 'DefaultProjectName' }}
+  ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+  PROJECT_PATH: ${{ vars.PROJECT_PATH }}
+  UNITY_VERSION: 6000.4.0f1
+
+jobs:
+  build:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: web
+            target: WebGL
+            package_ext: .zip
+            runner: ubuntu-latest
+
+          - platform: windows
+            target: StandaloneWindows64
+            package_ext: .zip
+            runner: windows-latest
+
+          - platform: linux
+            target: StandaloneLinux64
+            package_ext: .zip
+            runner: ubuntu-latest
+
+          - platform: macos
+            target: StandaloneOSX
+            package_ext: .dmg
+            runner: macos-latest
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-${{ matrix.target }}
+          restore-keys: |
+            Library-
+
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: ${{ matrix.target }}
+          buildsPath: tmp/build
+          buildName: ${{ env.PROJECT_NAME }}
