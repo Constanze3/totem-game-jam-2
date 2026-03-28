@@ -127,21 +127,14 @@ jobs:
       #     New-Item -ItemType Directory -Path tmp/build/${{ matrix.target }} -Force
       #     "This is a test" | Out-File -FilePath tmp/build/${{ matrix.target }}/hello.txt -Append
 
-      - name: Clean linux build folder
-        if: ${{ matrix.platform == 'linux' }}
-        working-directory: tmp/build
-        run: |
-          CLEANED_FOLDER="${{ matrix.target }}-cleaned"
-          sudo mkdir $CLEANED_FOLDER
-          sudo mv ${{ matrix.target }}/${{ env.PROJECT_NAME }}_Data $CLEANED_FOLDER
-          sudo mv ${{ matrix.target }}/${{ env.PROJECT_NAME }} $CLEANED_FOLDER
-          sudo mv ${{ matrix.target }} ${{ matrix.target }}-raw
-          sudo mv $CLEANED_FOLDER ${{ matrix.target }}
-
       - name: Package app (non-Windows)
         if: ${{ matrix.platform != 'windows' }}
         working-directory: tmp/build
         run: |
+          if [ '${{ matrix.platform }}' = 'linux' ]; then
+            sudo chmod +x '${{ matrix.target }}/${{ env.PROJECT_NAME }}'
+          fi
+
           if [ '${{ matrix.platform }}' = 'macos' ]; then
             ln -s /Applications .
             hdiutil create -fs HFS+ -volname '${{ env.PROJECT_NAME }}' -srcfolder '${{ matrix.target }}' '${{ env.package }}'
@@ -202,6 +195,6 @@ jobs:
             ./butler push \
               --fix-permissions \
               --userversion='${{ needs.get-version.outputs.version }}' \
-              tmp/"${channel}"/* \
+              tmp/"${channel}" \
               '${{ env.ITCH_TARGET }}':"${channel#package-}"
           done
