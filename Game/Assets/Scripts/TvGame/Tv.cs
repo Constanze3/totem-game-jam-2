@@ -10,6 +10,7 @@ public class TVController : MonoBehaviour
     public float inputDelay = 1.0f;
     public int correctChannelCodeLength = 4;
     public TMP_Text displayText;
+    public GameObject remote;
     public Person[] people;
     public Texture2D[] channelTextures;
 
@@ -20,6 +21,10 @@ public class TVController : MonoBehaviour
     private int currentChannelTextureIndex = 0;
 
     private Renderer tvScreenRenderer;
+
+    public float minHintDelay = 3f;
+
+    public float maxHintDelay = 6f;
 
     void OnEnable()
     {
@@ -93,14 +98,14 @@ public class TVController : MonoBehaviour
 
         unsatisfiedIndex = (unsatisfiedIndex + 1) % people.Length;
         people[unsatisfiedIndex].rageRate = people[unsatisfiedIndex].startingRageRate;
-        Debug.Log(
-            "New dissatisfied person: "
-                + people[unsatisfiedIndex]
-                + " is now raging with rate: "
-                + people[unsatisfiedIndex].rageRate
-        );
 
         correctChannelCode = GenerateChannelCode(correctChannelCodeLength);
+
+        remote.GetComponent<Interactable>().EndInteraction();
+
+        // Immediately show a hint for the new channel code
+        StopAllCoroutines();
+        StartCoroutine(ShowHint());
     }
 
     private String GenerateChannelCode(int length)
@@ -109,11 +114,25 @@ public class TVController : MonoBehaviour
 
         for (int i = 0; i < length; i++)
         {
-            int digit = UnityEngine.Random.Range(0, 9); // TODO: Implement more buttons
+            int digit = UnityEngine.Random.Range(0, 9);
             code.Append(digit);
         }
 
-        Debug.Log("New channel code: " + code.ToString());
         return code.ToString();
+    }
+
+    IEnumerator ShowHint()
+    {
+        Person currentPerson = people[unsatisfiedIndex];
+
+        string message = $"I need to watch channel {correctChannelCode}!!";
+
+        currentPerson.Say(message);
+
+        float randomDelay = UnityEngine.Random.Range(minHintDelay, maxHintDelay);
+
+        yield return new WaitForSeconds(randomDelay);
+
+        StartCoroutine(ShowHint());
     }
 }
