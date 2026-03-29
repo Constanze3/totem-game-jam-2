@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class Person : MonoBehaviour
 {
     public enum State
@@ -52,6 +53,26 @@ public class Person : MonoBehaviour
     [SerializeField]
     private AnimationClip ragingClip;
 
+    [Header("Audio Clips")]
+    [SerializeField]
+    private AudioClip idleAudioClip;
+
+    [SerializeField]
+    private AudioClip annoyedAudioClip;
+
+    [SerializeField]
+    private AudioClip angryAudioClip;
+
+    [SerializeField]
+    private AudioClip ragingAudioClip;
+
+    public AudioSource audioSource;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -81,9 +102,31 @@ public class Person : MonoBehaviour
 
         currentState = newState;
 
-        OnStateChanged?.Invoke(this, newState);
-
+        PlayAudioClipForState(newState);
         UpdateAnimation();
+
+        OnStateChanged?.Invoke(this, newState);
+    }
+
+    void PlayAudioClipForState(State state)
+    {
+        switch (currentState)
+        {
+            case State.Idle:
+                audioSource.clip = idleAudioClip;
+                break;
+            case State.Annoyed:
+                audioSource.clip = annoyedAudioClip;
+                break;
+            case State.Angry:
+                audioSource.clip = angryAudioClip;
+                break;
+            case State.Raging:
+                audioSource.clip = ragingAudioClip;
+                break;
+        }
+
+        audioSource.Play();
     }
 
     void UpdateAnimation()

@@ -1,12 +1,10 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SceneManager : MonoBehaviour
 {
-    public static SceneManager Instance = null;
+    public static SceneManager Instance;
 
     public List<string> preloadedScenes;
     public int initialOffset;
@@ -16,7 +14,7 @@ public class SceneManager : MonoBehaviour
     public bool loading = false;
     public bool loaded = false;
 
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -25,6 +23,8 @@ public class SceneManager : MonoBehaviour
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         PreloadScenes();
     }
 
@@ -46,7 +46,7 @@ public class SceneManager : MonoBehaviour
         {
             var loadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
                 sceneName,
-                LoadSceneMode.Additive
+                UnityEngine.SceneManagement.LoadSceneMode.Additive
             );
 
             while (!loadSceneOperation.isDone)
@@ -67,7 +67,7 @@ public class SceneManager : MonoBehaviour
         loaded = true;
     }
 
-    public Scene GetSceneByName(string name)
+    public UnityEngine.SceneManagement.Scene GetSceneByName(string name)
     {
         return UnityEngine.SceneManagement.SceneManager.GetSceneByName(name);
     }
