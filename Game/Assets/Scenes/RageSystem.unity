@@ -417,8 +417,11 @@ MonoBehaviour:
   currentState: 2
   currentActivity: 0
   rage: 60
-  rage_rate: 1
-  max_rage: 100
+  rageRate: 1
+  maxRage: 100
+  annoyedThreshold: 25
+  angryThreshold: 50
+  ragingThreshold: 75
   idleClip: {fileID: -203655887218126122, guid: 89e6de064611a450091448a7ffe90b95, type: 3}
   annoyedClip: {fileID: -203655887218126122, guid: e69f45424cb71417fbc91e4c169f8f73, type: 3}
   angryClip: {fileID: -203655887218126122, guid: 0e72d48bf7d8448658a9ed03f3e7ed7e, type: 3}
@@ -841,8 +844,11 @@ MonoBehaviour:
   currentState: 0
   currentActivity: 1
   rage: 0
-  rage_rate: 1
-  max_rage: 100
+  rageRate: 1
+  maxRage: 100
+  annoyedThreshold: 25
+  angryThreshold: 50
+  ragingThreshold: 75
   idleClip: {fileID: 0}
   annoyedClip: {fileID: 0}
   angryClip: {fileID: 0}
@@ -1616,8 +1622,11 @@ MonoBehaviour:
   currentState: 0
   currentActivity: 2
   rage: 30
-  rage_rate: 1
-  max_rage: 100
+  rageRate: 1
+  maxRage: 100
+  annoyedThreshold: 25
+  angryThreshold: 50
+  ragingThreshold: 75
   idleClip: {fileID: 0}
   annoyedClip: {fileID: 0}
   angryClip: {fileID: 0}
@@ -1655,7 +1664,7 @@ MonoBehaviour:
   logsTMP: {fileID: 44464402}
   startTime: 9
   endTime: 19
-  dayDuration: 180
+  dayDuration: 40
   currentTime: 9
   annoyedPenalty: 100
   angryPenalty: 500
