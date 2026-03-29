@@ -62,7 +62,7 @@ namespace Game
                 GameObject hitGameObject = hit.collider.gameObject;
                 var interactable = hitGameObject.GetComponent<Interactable>();
 
-                if (interactable != null)
+                if (interactable != null && !interactable.inInteraction)
                 {
                     Lock();
                     playerCameraScript.LookAt(interactable.interactionCameraTarget);

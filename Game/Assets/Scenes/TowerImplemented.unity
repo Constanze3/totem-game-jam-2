@@ -13238,12 +13238,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 236956618}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.28, y: 2.84, z: -10.43}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.059999943, y: -2.2900002, z: -0.22000027}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1971873013}
+  m_Father: {fileID: 1494834931}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &358391189
 GameObject:
@@ -17055,6 +17055,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e7c1c93125074a61936be48ac9653ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwipeManager
+  person: {fileID: 0}
   mainCamera: {fileID: 0}
   minLocalX: -9
   maxLocalX: 1.5
@@ -17062,6 +17063,12 @@ MonoBehaviour:
   maxTime: 1
   endCheckpointLocalX: 1.2
   feedbackText: {fileID: 0}
+  wrongsSound: {fileID: 0}
+  correctSound: {fileID: 0}
+  pickUpSound: {fileID: 0}
+  interactable: {fileID: 0}
+  cameraTeleportTarget: {fileID: 0}
+  cameraTransform: {fileID: 0}
 --- !u!54 &956783192
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18795,6 +18802,7 @@ Transform:
   - {fileID: 1202900505}
   - {fileID: 1723972072}
   - {fileID: 1973666111}
+  - {fileID: 236956619}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1514276783
@@ -22936,7 +22944,6 @@ Transform:
   - {fileID: 1667320446}
   - {fileID: 1182424173}
   - {fileID: 1098889983}
-  - {fileID: 236956619}
   - {fileID: 699068222}
   m_Father: {fileID: 957072187}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
