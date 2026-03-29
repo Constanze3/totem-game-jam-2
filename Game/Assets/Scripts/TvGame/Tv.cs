@@ -10,16 +10,21 @@ public class TVController : MonoBehaviour
     public float inputDelay = 1.0f;
     public int correctChannelCodeLength = 4;
     public TMP_Text displayText;
-    public TvPerson[] people;
+    public GameObject remote;
+    public Person[] people;
     public Texture2D[] channelTextures;
 
-    private int currentlySatisfiedPersonIndex = 0;
+    private int unsatisfiedIndex = 0;
     private string correctChannelCode = "";
     private StringBuilder inputBuffer = new StringBuilder();
     private Coroutine inputTimeoutCoroutine;
     private int currentChannelTextureIndex = 0;
 
     private Renderer tvScreenRenderer;
+
+    public float minHintDelay = 3f;
+
+    public float maxHintDelay = 6f;
 
     void OnEnable()
     {
@@ -84,18 +89,23 @@ public class TVController : MonoBehaviour
             newChannelTextureIndex = UnityEngine.Random.Range(0, channelTextures.Length);
         }
 
-        tvScreenRenderer.material.mainTexture = channelTextures[newChannelTextureIndex];
+        tvScreenRenderer.materials[1].mainTexture = channelTextures[newChannelTextureIndex];
 
-        people[currentlySatisfiedPersonIndex].satisfied = true;
-        people[currentlySatisfiedPersonIndex].resetRage();
+        people[unsatisfiedIndex].startingRageRate = people[unsatisfiedIndex].rageRate; // Makes sure to save previous rage rate to revert back to
 
-        currentlySatisfiedPersonIndex = (currentlySatisfiedPersonIndex + 1) % people.Length;
-        people[currentlySatisfiedPersonIndex].satisfied = false;
-        Debug.Log(
-            "New dissatisfied person: " + ((currentlySatisfiedPersonIndex + 1) % people.Length)
-        );
+        people[unsatisfiedIndex].rageRate = 0f;
+        people[unsatisfiedIndex].SetRage(0f);
+
+        unsatisfiedIndex = (unsatisfiedIndex + 1) % people.Length;
+        people[unsatisfiedIndex].rageRate = people[unsatisfiedIndex].startingRageRate;
 
         correctChannelCode = GenerateChannelCode(correctChannelCodeLength);
+
+        remote.GetComponent<Interactable>().EndInteraction();
+
+        // Immediately show a hint for the new channel code
+        StopAllCoroutines();
+        StartCoroutine(ShowHint());
     }
 
     private String GenerateChannelCode(int length)
@@ -104,11 +114,25 @@ public class TVController : MonoBehaviour
 
         for (int i = 0; i < length; i++)
         {
-            int digit = UnityEngine.Random.Range(0, 9); // TODO: Implement more buttons
+            int digit = UnityEngine.Random.Range(0, 9);
             code.Append(digit);
         }
 
-        Debug.Log("New channel code: " + code.ToString());
         return code.ToString();
+    }
+
+    IEnumerator ShowHint()
+    {
+        Person currentPerson = people[unsatisfiedIndex];
+
+        string message = $"I need to watch channel {correctChannelCode}!!";
+
+        currentPerson.Say(message);
+
+        float randomDelay = UnityEngine.Random.Range(minHintDelay, maxHintDelay);
+
+        yield return new WaitForSeconds(randomDelay);
+
+        StartCoroutine(ShowHint());
     }
 }

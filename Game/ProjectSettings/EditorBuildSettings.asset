@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/ImprovedRoom 1.unity
+    guid: 147d0dbdae0cb914fa550be3175cee55
+  - enabled: 1
     path: Assets/Scenes/Sonner.unity
     guid: 742879ff64966254aa5b46ab60b014c4
   m_configObjects: {}

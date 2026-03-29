@@ -29,37 +29,62 @@ public class Person : MonoBehaviour
 
     [Header("Rage settings")]
     public float rage = 0f;
-    public float rageRate = 1f;
+    public float rageRate = 1f; // the current rage rate of the person
     public float maxRage = 100f;
+    public float startingRageRate = 1f; // needed for reverting back to it in tv game
 
     public float annoyedThreshold = 25f;
     public float angryThreshold = 50f;
     public float ragingThreshold = 75f;
 
     [Header("Rage UI")]
-    [SerializeField] private Slider rageSlider;
-    [SerializeField] private Image fillImage;
+    [SerializeField]
+    private Slider rageSlider;
+
+    [SerializeField]
+    private Image fillImage;
 
     [Header("Rage Colors")]
-    [SerializeField] private Color idleColor = Color.green;
-    [SerializeField] private Color annoyedColor = Color.yellow;
-    [SerializeField] private Color angryColor = new Color(1f, 0.5f, 0f);
-    [SerializeField] private Color ragingColor = Color.red;
+    [SerializeField]
+    private Color idleColor = Color.green;
+
+    [SerializeField]
+    private Color annoyedColor = Color.yellow;
+
+    [SerializeField]
+    private Color angryColor = new Color(1f, 0.5f, 0f);
+
+    [SerializeField]
+    private Color ragingColor = Color.red;
 
     private Animator animator;
     private AnimatorOverrideController overrideController;
 
     [Header("Animation Clips")]
-    [SerializeField] private AnimationClip idleClip;
-    [SerializeField] private AnimationClip annoyedClip;
-    [SerializeField] private AnimationClip angryClip;
-    [SerializeField] private AnimationClip ragingClip;
+    [SerializeField]
+    private AnimationClip idleClip;
+
+    [SerializeField]
+    private AnimationClip annoyedClip;
+
+    [SerializeField]
+    private AnimationClip angryClip;
+
+    [SerializeField]
+    private AnimationClip ragingClip;
 
     [Header("Audio Clips")]
-    [SerializeField] private AudioClip idleAudioClip;
-    [SerializeField] private AudioClip annoyedAudioClip;
-    [SerializeField] private AudioClip angryAudioClip;
-    [SerializeField] private AudioClip ragingAudioClip;
+    [SerializeField]
+    private AudioClip idleAudioClip;
+
+    [SerializeField]
+    private AudioClip annoyedAudioClip;
+
+    [SerializeField]
+    private AudioClip angryAudioClip;
+
+    [SerializeField]
+    private AudioClip ragingAudioClip;
 
     public AudioSource audioSource;
 
