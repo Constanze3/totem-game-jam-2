@@ -1,32 +1,29 @@
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
+using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    [Header("UI")]
     public GameObject endScreenPanel;
-
     public TextMeshProUGUI logsTMP;
 
     [Header("Time Settings")]
-    public float startTime = 9f; // start at 9:00
-    public float endTime = 19f; // end at 19:00
-    public float dayDuration = 180f; // real seconds for full day
+    public float startTime = 9f;
+    public float endTime = 19f;
+    public float dayDuration = 180f;
 
     public float currentTime = 9f;
 
     private bool gameEnded = false;
 
-    [Header("Logs Settings")]
+    [Header("Score Settings")]
     public int annoyedPenalty;
     public int angryPenalty;
     public int ragingPenalty;
-
     public int startingScore;
 
     private int finalScore;
@@ -56,12 +53,12 @@ public class GameManager : MonoBehaviour
         new SentenceTemplate
         {
             activity = Person.Activity.Frogger,
-            template = "{name} became {state} after being stuck at Frogger",
+            template = "{name} became {state} after being stuck at Sonner",
         },
         new SentenceTemplate
         {
             activity = Person.Activity.Frogger,
-            template = "{name} got run over in frogger one too many times and became {state}",
+            template = "{name} got run over in Sonner one too many times and became {state}",
         },
         new SentenceTemplate
         {
@@ -81,15 +78,17 @@ public class GameManager : MonoBehaviour
         new SentenceTemplate
         {
             activity = Person.Activity.CardSwipe,
-            template = "{name} didn't manage to get a new onlyfans subscription so he's {state}",
+            template = "{name} didn't manage to get a new subscription so he's {state}",
         },
         new SentenceTemplate
         {
             activity = Person.Activity.CardSwipe,
-            template =
-                "{name} got {state} after not being able to pay for his daughter's flight back from India",
+            template = "{name} got {state} after failing to pay for something important",
         },
     };
+
+    // Cached lookup
+    private Dictionary<Person.Activity, List<SentenceTemplate>> templateMap;
 
     void Awake()
     {
@@ -105,10 +104,23 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        GameObject[] personObjects = GameObject.FindGameObjectsWithTag("Person");
-        UnityEngine.Debug.Log("People: " + personObjects.Length);
-
         finalScore = startingScore;
+
+        // Build template lookup
+        templateMap = new Dictionary<Person.Activity, List<SentenceTemplate>>();
+
+        foreach (var template in templates)
+        {
+            if (!templateMap.ContainsKey(template.activity))
+                templateMap[template.activity] = new List<SentenceTemplate>();
+
+            templateMap[template.activity].Add(template);
+        }
+
+        // Subscribe to people
+        GameObject[] personObjects = GameObject.FindGameObjectsWithTag("Person");
+
+        Debug.Log("People: " + personObjects.Length);
 
         foreach (GameObject obj in personObjects)
         {
@@ -132,7 +144,6 @@ public class GameManager : MonoBehaviour
     void UpdateTime()
     {
         float hoursPerSecond = (endTime - startTime) / dayDuration;
-
         currentTime += hoursPerSecond * Time.deltaTime;
 
         if (currentTime >= endTime)
@@ -146,84 +157,77 @@ public class GameManager : MonoBehaviour
     {
         gameEnded = true;
 
-        UnityEngine.Debug.Log("Day finished!");
+        Debug.Log("Day finished!");
 
         ShowScoreScreen();
     }
 
     void ShowScoreScreen()
     {
-        // Enable UI panel
         endScreenPanel.SetActive(true);
 
-        // Display logs
-        string fullLog = "";
+        StringBuilder sb = new StringBuilder();
 
         foreach (string log in logs)
         {
-            fullLog += log;
+            sb.AppendLine(log);
         }
 
-        logsTMP.text = fullLog;
+        sb.AppendLine("------------------------------------");
+        sb.AppendLine("Final Score: " + finalScore);
 
-        logsTMP.text += "---------------------------------------------------------\n";
+        logsTMP.text = sb.ToString();
 
-        // Calculate score
-
-        logsTMP.text += "Final Score: " + finalScore;
+        Time.timeScale = 0f;
     }
 
     void HandlePersonStateChanged(Person person, Person.State newState)
     {
-        UnityEngine.Debug.Log($"{person.personName} changed to {newState}");
+        Debug.Log($"{person.personName} changed to {newState}");
 
-        if (newState != Person.State.Idle)
-            logs.Add(GenerateSentence(person, person.currentState, person.currentActivity));
+        if (newState == Person.State.Idle)
+            return;
+
+        string sentence = GenerateSentence(person, newState, person.currentActivity);
+
+        int penalty = GetPenalty(newState);
+        finalScore -= penalty;
+
+        string formattedLog = $"({GetFormattedTime()}) {sentence} (-{penalty})";
+
+        logs.Add(formattedLog);
     }
 
     string GenerateSentence(Person person, Person.State state, Person.Activity activity)
     {
-        // Filter by activity
-        List<SentenceTemplate> validTemplates = templates.FindAll(t => t.activity == activity);
-
-        if (validTemplates.Count == 0)
+        if (!templateMap.ContainsKey(activity))
         {
-            UnityEngine.Debug.Log(
-                $"{person.personName} doing {activity} in state {state} generated an empty log"
-            );
+            Debug.LogWarning($"{activity} has no templates");
             return "";
         }
 
-        var template = validTemplates[Random.Range(0, validTemplates.Count)].template;
+        var list = templateMap[activity];
+        var template = list[Random.Range(0, list.Count)].template;
 
-        string result = "(" + GetFormattedTime() + ") ";
-
-        result += template
+        return template
             .Replace("{name}", person.personName)
             .Replace("{state}", state.ToString().ToLower());
+    }
 
-        if (state == Person.State.Annoyed)
+    int GetPenalty(Person.State state)
+    {
+        return state switch
         {
-            result += " (-" + annoyedPenalty.ToString() + ")";
-            finalScore -= annoyedPenalty;
-        }
-        else if (state == Person.State.Angry)
-        {
-            result += " (-" + angryPenalty.ToString() + ")";
-            finalScore -= angryPenalty;
-        }
-        else if (state == Person.State.Raging)
-        {
-            result += " (-" + ragingPenalty.ToString() + ")";
-            finalScore -= ragingPenalty;
-        }
-
-        return result + "\n";
+            Person.State.Annoyed => annoyedPenalty,
+            Person.State.Angry => angryPenalty,
+            Person.State.Raging => ragingPenalty,
+            _ => 0,
+        };
     }
 
     public float GetNormalizedTime()
     {
-        return (currentTime - 9f) / (endTime - 9f);
+        return (currentTime - startTime) / (endTime - startTime);
     }
 
     public string GetFormattedTime()

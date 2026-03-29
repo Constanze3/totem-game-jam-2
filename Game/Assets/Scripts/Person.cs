@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Person : MonoBehaviour
 {
@@ -27,9 +27,14 @@ public class Person : MonoBehaviour
 
     public Activity currentActivity;
 
+    [Header("Rage settings")]
     public float rage = 0f;
-    public float rage_rate = 1f;
-    public float max_rage = 100f;
+    public float rageRate = 1f;
+    public float maxRage = 100f;
+
+    public float annoyedThreshold = 25f;
+    public float angryThreshold = 50f;
+    public float ragingThreshold = 75f;
 
     private Animator animator;
     private AnimatorOverrideController overrideController;
@@ -66,7 +71,7 @@ public class Person : MonoBehaviour
 
     void IncreaseRageOverTime()
     {
-        SetRage(rage + rage_rate * Time.deltaTime);
+        SetRage(rage + rageRate * Time.deltaTime);
     }
 
     public void SetState(State newState)
@@ -145,19 +150,21 @@ public class Person : MonoBehaviour
 
     public void SetRage(float newRage)
     {
-        rage = Mathf.Clamp(newRage, 0f, max_rage);
+        rage = Mathf.Clamp(newRage, 0f, maxRage);
         UpdateStateFromRage();
     }
 
     void UpdateStateFromRage()
     {
-        if (rage > 75)
-            SetState(State.Raging);
-        else if (rage > 50)
-            SetState(State.Angry);
-        else if (rage > 25)
-            SetState(State.Annoyed);
-        else
-            SetState(State.Idle);
+        State newState = State.Idle;
+
+        if (rage > ragingThreshold)
+            newState = State.Raging;
+        else if (rage > angryThreshold)
+            newState = State.Angry;
+        else if (rage > annoyedThreshold)
+            newState = State.Annoyed;
+
+        SetState(newState);
     }
 }
