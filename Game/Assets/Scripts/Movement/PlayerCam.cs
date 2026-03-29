@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using DG.Tweening;
+using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
@@ -14,10 +12,16 @@ public class PlayerCam : MonoBehaviour
     float xRotation;
     float yRotation;
 
-    private void Start()
+    private void OnEnable()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void OnDisable()
+    {
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     private void Update()
@@ -44,5 +48,14 @@ public class PlayerCam : MonoBehaviour
     public void DoTilt(float zTilt)
     {
         transform.DOLocalRotate(new Vector3(0, 0, zTilt), 0.25f);
+    }
+
+    public void LookAt(Transform target)
+    {
+        var towardsTarget = target.position - transform.position;
+        var rotation = Quaternion.LookRotation(towardsTarget, Vector3.up).eulerAngles;
+
+        camHolder.rotation = Quaternion.Euler(rotation.x, rotation.y, 0);
+        orientation.rotation = Quaternion.Euler(0, rotation.y, 0);
     }
 }
