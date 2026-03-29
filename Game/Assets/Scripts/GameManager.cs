@@ -92,6 +92,8 @@ public class GameManager : MonoBehaviour
     // Cached lookup
     private Dictionary<Person.Activity, List<SentenceTemplate>> templateMap;
 
+    public GameObject speechBubblePrefab;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -238,5 +240,17 @@ public class GameManager : MonoBehaviour
         int minutes = Mathf.FloorToInt((currentTime - hours) * 60);
 
         return $"{hours:00}:{minutes:00}";
+    }
+
+    public void ShowSpeech(Transform personTransform, string message)
+    {
+        GameObject bubbleObj = Instantiate(
+            speechBubblePrefab,
+            personTransform.position,
+            Quaternion.identity
+        );
+
+        SpeechBubble bubble = bubbleObj.GetComponent<SpeechBubble>();
+        bubble.Init(personTransform, message);
     }
 }
