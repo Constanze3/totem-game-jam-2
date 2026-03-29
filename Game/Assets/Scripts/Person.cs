@@ -74,9 +74,10 @@ public class Person : MonoBehaviour
         if (currentState == newState)
             return;
 
+        currentState = newState;
+
         OnStateChanged?.Invoke(this, newState);
 
-        currentState = newState;
         UpdateAnimation();
     }
 

@@ -22,13 +22,16 @@ public class GameManager : MonoBehaviour
 
     private bool gameEnded = false;
 
-
     [Header("Logs Settings")]
     public int annoyedPenalty;
     public int angryPenalty;
     public int ragingPenalty;
 
-    public List<string> logs = new List<string>();
+    public int startingScore;
+
+    private int finalScore;
+
+    private List<string> logs = new List<string>();
 
     [System.Serializable]
     public class SentenceTemplate
@@ -53,12 +56,38 @@ public class GameManager : MonoBehaviour
         new SentenceTemplate
         {
             activity = Person.Activity.Frogger,
-            template = "{name} became {state} after getting stuck at Frogger",
+            template = "{name} became {state} after being stuck at Frogger",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.Frogger,
+            template = "{name} got run over in frogger one too many times and became {state}",
         },
         new SentenceTemplate
         {
             activity = Person.Activity.CloseAds,
             template = "{name} is {state} from getting overwhelmed by ads",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.CloseAds,
+            template = "{name} is {state} because of the neverending stream of ads",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.CardSwipe,
+            template = "{name} is {state} since he couldn't buy NFT's",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.CardSwipe,
+            template = "{name} didn't manage to get a new onlyfans subscription so he's {state}",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.CardSwipe,
+            template =
+                "{name} got {state} after not being able to pay for his daughter's flight back from India",
         },
     };
 
@@ -78,6 +107,8 @@ public class GameManager : MonoBehaviour
     {
         GameObject[] personObjects = GameObject.FindGameObjectsWithTag("Person");
         UnityEngine.Debug.Log("People: " + personObjects.Length);
+
+        finalScore = startingScore;
 
         foreach (GameObject obj in personObjects)
         {
@@ -135,14 +166,19 @@ public class GameManager : MonoBehaviour
 
         logsTMP.text = fullLog;
 
+        logsTMP.text += "---------------------------------------------------------\n";
+
         // Calculate score
+
+        logsTMP.text += "Final Score: " + finalScore;
     }
 
     void HandlePersonStateChanged(Person person, Person.State newState)
     {
         UnityEngine.Debug.Log($"{person.personName} changed to {newState}");
 
-        logs.Add(GenerateSentence(person, person.currentState, person.currentActivity));
+        if (newState != Person.State.Idle)
+            logs.Add(GenerateSentence(person, person.currentState, person.currentActivity));
     }
 
     string GenerateSentence(Person person, Person.State state, Person.Activity activity)
@@ -151,7 +187,12 @@ public class GameManager : MonoBehaviour
         List<SentenceTemplate> validTemplates = templates.FindAll(t => t.activity == activity);
 
         if (validTemplates.Count == 0)
+        {
+            UnityEngine.Debug.Log(
+                $"{person.personName} doing {activity} in state {state} generated an empty log"
+            );
             return "";
+        }
 
         var template = validTemplates[Random.Range(0, validTemplates.Count)].template;
 
@@ -163,15 +204,18 @@ public class GameManager : MonoBehaviour
 
         if (state == Person.State.Annoyed)
         {
-            result += " (- " + annoyedPenalty.ToString() + ")";
+            result += " (-" + annoyedPenalty.ToString() + ")";
+            finalScore -= annoyedPenalty;
         }
         else if (state == Person.State.Angry)
         {
-            result += " (- " + angryPenalty.ToString() + ")";
+            result += " (-" + angryPenalty.ToString() + ")";
+            finalScore -= angryPenalty;
         }
         else if (state == Person.State.Raging)
         {
-            result += " (- " + ragingPenalty.ToString() + ")";
+            result += " (-" + ragingPenalty.ToString() + ")";
+            finalScore -= ragingPenalty;
         }
 
         return result + "\n";
