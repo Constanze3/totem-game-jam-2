@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Person : MonoBehaviour
+public class TvPerson : MonoBehaviour
 {
     public int rageScore = 0;
     public int rageLimit = 100;
