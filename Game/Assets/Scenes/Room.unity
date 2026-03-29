@@ -458,6 +458,7 @@ MonoBehaviour:
     template: '{name} didn''t manage to get a new subscription so he''s {state}'
   - activity: 2
     template: '{name} got {state} after failing to pay for something important'
+  speechBubblePrefab: {fileID: 0}
 --- !u!4 &53656233
 Transform:
   m_ObjectHideFlags: 0
@@ -17537,6 +17538,12 @@ MonoBehaviour:
   annoyedThreshold: 25
   angryThreshold: 50
   ragingThreshold: 75
+  rageSlider: {fileID: 0}
+  fillImage: {fileID: 0}
+  idleColor: {r: 0, g: 1, b: 0, a: 1}
+  annoyedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  angryColor: {r: 1, g: 0.5, b: 0, a: 1}
+  ragingColor: {r: 1, g: 0, b: 0, a: 1}
   idleClip: {fileID: -203655887218126122, guid: 89e6de064611a450091448a7ffe90b95, type: 3}
   annoyedClip: {fileID: -203655887218126122, guid: e69f45424cb71417fbc91e4c169f8f73, type: 3}
   angryClip: {fileID: -203655887218126122, guid: 0e72d48bf7d8448658a9ed03f3e7ed7e, type: 3}
@@ -19621,6 +19628,12 @@ MonoBehaviour:
   annoyedThreshold: 25
   angryThreshold: 50
   ragingThreshold: 75
+  rageSlider: {fileID: 0}
+  fillImage: {fileID: 0}
+  idleColor: {r: 0, g: 1, b: 0, a: 1}
+  annoyedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  angryColor: {r: 1, g: 0.5, b: 0, a: 1}
+  ragingColor: {r: 1, g: 0, b: 0, a: 1}
   idleClip: {fileID: 0}
   annoyedClip: {fileID: 0}
   angryClip: {fileID: 0}
@@ -20756,80 +20769,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c9a02b73d51fc46b0a474ff0d5c1bec0, type: 3}
---- !u!1001 &1697804527
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1971873013}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.2418971
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.2418971
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.2418971
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.25958
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 11.127
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-      propertyPath: m_Name
-      value: Wardrobe
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
---- !u!4 &1697804528 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: eebe16cad37fc4f2994c1cead3b3e3b9, type: 3}
-  m_PrefabInstance: {fileID: 1697804527}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1745602899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21349,6 +21288,12 @@ MonoBehaviour:
   annoyedThreshold: 25
   angryThreshold: 50
   ragingThreshold: 75
+  rageSlider: {fileID: 0}
+  fillImage: {fileID: 0}
+  idleColor: {r: 0, g: 1, b: 0, a: 1}
+  annoyedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  angryColor: {r: 1, g: 0.5, b: 0, a: 1}
+  ragingColor: {r: 1, g: 0, b: 0, a: 1}
   idleClip: {fileID: 0}
   annoyedClip: {fileID: 0}
   angryClip: {fileID: 0}
@@ -21494,7 +21439,6 @@ Transform:
   - {fileID: 1302035679}
   - {fileID: 729624547}
   - {fileID: 1831393146}
-  - {fileID: 1697804528}
   - {fileID: 1514276784}
   - {fileID: 98489142}
   - {fileID: 865442270}

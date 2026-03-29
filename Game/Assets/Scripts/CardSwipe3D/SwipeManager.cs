@@ -132,7 +132,7 @@ public class SwipeManager : MonoBehaviour
         else if (swipeTime > maxTime)
             ShowFeedback("Too slow!", Color.red);
         else
-            ShowFeedback("Access granted!", Color.green);
+            ShowFeedback("Access granted!", Color.white);
 
         ResetCard();
     }
