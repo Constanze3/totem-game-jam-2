@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,22 +23,68 @@ namespace Game
 
         private Rigidbody rb;
         private readonly List<Slice> spawnedSlices = new List<Slice>();
-        [SerializeField] private AudioClip popSound;
 
+        [SerializeField] private AudioClip popSound;
+        [SerializeField] private Interactable interactable;
         private AudioSource audioSource;
+
+        private bool gameStarted = false;
+
+        [SerializeField] private Transform cameraTeleportTarget;
+        [SerializeField] private Transform cameraTransform;
+
+        public Person person;
+
+        private float initialVelocity;
+        private Vector3 initialPosition;
+        private Quaternion initialRotation;
+
         private void Start()
         {
             audioSource = GetComponent<AudioSource>();
             audioSource.loop = false;
             audioSource.playOnAwake = false;
             audioSource.clip = popSound;
+
             rb = GetComponent<Rigidbody>();
+
+            initialVelocity = velocity;
+            initialPosition = transform.position;
+            initialRotation = transform.rotation;
+
             SetHorizontalVelocity(velocity);
+        }
+
+        private void OnEnable()
+        {
+            interactable.OnInteractionStart += StartGame;
+            interactable.OnInteractionEnd += EndGame;
+        }
+
+        private void OnDisable()
+        {
+            interactable.OnInteractionStart -= StartGame;
+            interactable.OnInteractionEnd -= EndGame;
+        }
+
+        private void StartGame()
+        {
+            ResetGame();
+
+            gameStarted = true;
+            cameraTransform.position = cameraTeleportTarget.position;
+            cameraTransform.LookAt(interactable.interactionCameraTarget);
+        }
+
+        private void EndGame()
+        {
+            gameStarted = false;
+            rb.linearVelocity = Vector3.zero;
         }
 
         private void Update()
         {
-            if (hasWon)
+            if (!gameStarted || hasWon)
                 return;
 
             spawnCooldownTimer -= Time.deltaTime;
@@ -70,8 +117,15 @@ namespace Game
 
         private void SpawnSlice()
         {
-            audioSource.Play();
+            if (slicePrefabs == null || slicePrefabs.Count == 0)
+                return;
+
+            audioSource.PlayOneShot(popSound);
+
             GameObject randomPrefab = GetRandomSlicePrefab();
+
+            if (randomPrefab == null)
+                return;
 
             GameObject newObject = Instantiate(
                 randomPrefab,
@@ -86,7 +140,6 @@ namespace Game
                 slice.SetSpawner(this);
                 spawnedSlices.Add(slice);
             }
-
         }
 
         private GameObject GetRandomSlicePrefab()
@@ -123,7 +176,11 @@ namespace Game
         private void WinGame()
         {
             hasWon = true;
+            gameStarted = false;
             rb.linearVelocity = Vector3.zero;
+
+            interactable.EndInteraction();
+            person.SetRage(0);
 
             Debug.Log("You win!");
         }
@@ -134,6 +191,31 @@ namespace Game
             {
                 spawnedSlices.Remove(slice);
             }
+        }
+
+        private void ResetGame()
+        {
+            hasWon = false;
+            frozenSliceCount = 0;
+            spawnCooldownTimer = 0f;
+            velocity = initialVelocity;
+
+            for (int i = spawnedSlices.Count - 1; i >= 0; i--)
+            {
+                if (spawnedSlices[i] != null)
+                {
+                    Destroy(spawnedSlices[i].gameObject);
+                }
+            }
+
+            spawnedSlices.Clear();
+
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            transform.SetPositionAndRotation(initialPosition, initialRotation);
+
+            SetHorizontalVelocity(velocity);
         }
     }
 }

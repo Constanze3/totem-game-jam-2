@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -80,6 +81,11 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     public TextMeshProUGUI text_speed;
     public TextMeshProUGUI text_mode;
+
+    private void OnDisable()
+    {
+        audioSource.Stop();
+    }
 
     private void Start()
     {

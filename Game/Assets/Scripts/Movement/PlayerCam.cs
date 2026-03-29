@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
@@ -8,7 +9,9 @@ public class PlayerCam : MonoBehaviour
 
     public Transform orientation;
     public Transform camHolder;
-
+    private Quaternion savedRotation;
+    private Vector3 savedPosition;
+    private bool transformSaved = false;
     float xRotation;
     float yRotation;
 
@@ -16,12 +19,21 @@ public class PlayerCam : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        if (transformSaved)
+        {
+            transform.position = savedPosition;
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
+
     }
 
     private void OnDisable()
     {
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
+        savedPosition = transform.position;
+        savedRotation = transform.rotation;
+        transformSaved = true;
     }
 
     private void Update()
