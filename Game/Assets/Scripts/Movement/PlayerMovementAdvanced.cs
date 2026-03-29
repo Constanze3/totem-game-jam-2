@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class PlayerMovementAdvanced : MonoBehaviour
 {
     [Header("Movement")]
@@ -44,6 +45,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
+    [Header("Footsteps")]
+    [SerializeField] private AudioClip footstepClip;
+    [SerializeField] private float baseFootstepVolume = 0.5f;
+    [SerializeField] private float walkPitch = 1f;
+    [SerializeField] private float sprintPitch = 1.2f;
+    [SerializeField] private float crouchPitch = 0.85f;
+
     public Transform orientation;
 
     float horizontalInput;
@@ -52,6 +60,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
     Vector3 moveDirection;
 
     Rigidbody rb;
+    private AudioSource audioSource;
 
     public MovementState state;
 
@@ -77,14 +86,17 @@ public class PlayerMovementAdvanced : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        readyToJump = true;
+        audioSource = GetComponent<AudioSource>();
+        audioSource.loop = true;
+        audioSource.playOnAwake = false;
+        audioSource.clip = footstepClip;
 
+        readyToJump = true;
         startYScale = transform.localScale.y;
     }
 
     private void Update()
     {
-        // ground check
         grounded = Physics.Raycast(
             transform.position,
             Vector3.down,
@@ -95,8 +107,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
         MyInput();
         SpeedControl();
         StateHandler();
+        HandleFootsteps();
 
-        // handle drag
         if (grounded)
             rb.linearDamping = groundDrag;
         else
@@ -113,7 +125,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        // when to jump
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
         {
             readyToJump = false;
@@ -123,8 +134,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
-        // start crouch
-        if (Input.GetKeyDown(crouchKey)) //Add this if you want slide "&& horizontalInput == 0 && verticalInput == 0"
+        if (Input.GetKeyDown(crouchKey))
         {
             transform.localScale = new Vector3(
                 transform.localScale.x,
@@ -136,7 +146,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
             crouching = true;
         }
 
-        // stop crouch
         if (Input.GetKeyUp(crouchKey))
         {
             transform.localScale = new Vector3(
@@ -151,62 +160,40 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private void StateHandler()
     {
-        // Mode - Wallrunning
         if (wallrunning)
         {
             state = MovementState.wallrunning;
             desiredMoveSpeed = wallrunSpeed;
         }
-        // Mode - Sliding
         else if (sliding)
         {
             state = MovementState.sliding;
 
-            // increase speed by one every second
             if (OnSlope() && rb.linearVelocity.y < 0.1f)
                 desiredMoveSpeed = slideSpeed;
             else
                 desiredMoveSpeed = sprintSpeed;
         }
-        // Mode - Crouching
         else if (crouching)
         {
             state = MovementState.crouching;
             desiredMoveSpeed = crouchSpeed;
         }
-        // Mode - Sprinting
-        else if (grounded && Input.GetKey(sprintKey) && !Input.GetKey(crouchKey)) //Change this if you want slide
+        else if (grounded && Input.GetKey(sprintKey) && !Input.GetKey(crouchKey))
         {
             state = MovementState.sprinting;
             desiredMoveSpeed = sprintSpeed;
         }
-        // Mode - Walking
         else if (grounded)
         {
             state = MovementState.walking;
             desiredMoveSpeed = walkSpeed;
         }
-        // Mode - Air
         else
         {
             state = MovementState.air;
         }
 
-        // check if desired move speed has changed drastically
-
-        /* Add this part back for sliding.
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
-        {
-            StopAllCoroutines();
-            StartCoroutine(SmoothlyLerpMoveSpeed());
-
-            print("Lerp Started!");
-        }
-        else
-        {
-            moveSpeed = desiredMoveSpeed;
-        }
-        */
         if (state == MovementState.crouching || state == MovementState.sprinting)
         {
             StopAllCoroutines();
@@ -227,7 +214,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private IEnumerator SmoothlyLerpMoveSpeed()
     {
-        // smoothly lerp movementSpeed to desired value
         float time = 0;
         float difference = Mathf.Abs(desiredMoveSpeed - moveSpeed);
         float startValue = moveSpeed;
@@ -248,7 +234,9 @@ public class PlayerMovementAdvanced : MonoBehaviour
                     * slopeAngleIncrease;
             }
             else
+            {
                 time += Time.deltaTime * speedIncreaseMultiplier;
+            }
 
             yield return null;
         }
@@ -258,10 +246,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private void MovePlayer()
     {
-        // calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-        // on slope
         if (OnSlope() && !exitingSlope)
         {
             rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
@@ -269,35 +255,33 @@ public class PlayerMovementAdvanced : MonoBehaviour
             if (rb.linearVelocity.y > 0)
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
         }
-        // on ground
         else if (grounded)
+        {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
-        // in air
+        }
         else if (!grounded)
+        {
             rb.AddForce(
                 moveDirection.normalized * moveSpeed * 10f * airMultiplier,
                 ForceMode.Force
             );
+        }
 
-        // turn gravity off while on slope
         if (!wallrunning)
             rb.useGravity = !OnSlope();
     }
 
     private void SpeedControl()
     {
-        // limiting speed on slope
         if (OnSlope() && !exitingSlope)
         {
             if (rb.linearVelocity.magnitude > moveSpeed)
                 rb.linearVelocity = rb.linearVelocity.normalized * moveSpeed;
         }
-        // limiting speed on ground or in air
         else
         {
             Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
-            // limit velocity if needed
             if (flatVel.magnitude > moveSpeed)
             {
                 Vector3 limitedVel = flatVel.normalized * moveSpeed;
@@ -306,20 +290,62 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
     }
 
+    private void HandleFootsteps()
+    {
+        bool hasMovementInput = horizontalInput != 0 || verticalInput != 0;
+        bool shouldPlay =
+            grounded
+            && hasMovementInput
+            && !wallrunning
+            && state != MovementState.air;
+
+        if (footstepClip == null)
+            return;
+
+        if (shouldPlay)
+        {
+            if (!audioSource.isPlaying)
+                audioSource.Play();
+
+            switch (state)
+            {
+                case MovementState.sprinting:
+                    audioSource.pitch = sprintPitch;
+                    audioSource.volume = baseFootstepVolume;
+                    break;
+
+                case MovementState.crouching:
+                    audioSource.pitch = crouchPitch;
+                    audioSource.volume = baseFootstepVolume * 0.7f;
+                    break;
+
+                default:
+                    audioSource.pitch = walkPitch;
+                    audioSource.volume = baseFootstepVolume;
+                    break;
+            }
+        }
+        else
+        {
+            if (audioSource.isPlaying)
+                audioSource.Stop();
+        }
+    }
+
     private void Jump()
     {
         exitingSlope = true;
 
-        // reset y velocity
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+        if (audioSource.isPlaying)
+            audioSource.Stop();
     }
 
     private void ResetJump()
     {
         readyToJump = true;
-
         exitingSlope = false;
     }
 
@@ -348,7 +374,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     public static float Round(float value, int digits)
     {
-        float mult = Mathf.Pow(10.0f, (float)digits);
+        float mult = Mathf.Pow(10.0f, digits);
         return Mathf.Round(value * mult) / mult;
     }
 }

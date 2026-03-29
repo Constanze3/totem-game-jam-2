@@ -14,13 +14,23 @@ namespace Game
         [SerializeField] private float freezeTimer = 2f;
 
         private bool hasFrozen = false;
+        [SerializeField] private AudioClip hitClip;
+        private AudioSource audioSource;
 
+        private bool hasHitGround = false;
         private void Start()
         {
+            audioSource = GetComponent<AudioSource>();
             rb = GetComponent<Rigidbody>();
             lastPosition = transform.position;
         }
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (hasHitGround) return;
+            hasHitGround = true;
+            audioSource.PlayOneShot(hitClip);
 
+        }
         public void SetSpawner(FoodSpawner foodSpawner)
         {
             spawner = foodSpawner;

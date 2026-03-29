@@ -565,6 +565,7 @@ MonoBehaviour:
     template: '{name} didn''t manage to get a new subscription so he''s {state}'
   - activity: 2
     template: '{name} got {state} after failing to pay for something important'
+  speechBubblePrefab: {fileID: 0}
 --- !u!4 &53656233
 Transform:
   m_ObjectHideFlags: 0
@@ -17588,6 +17589,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7592897780762666732, guid: 61ea1256ee2474517827788af5eb01ca, type: 3}
+      propertyPath: footstepClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 6335fc53150ce424c9e506b811714407, type: 3}
     - target: {fileID: 8022370633936628620, guid: 61ea1256ee2474517827788af5eb01ca, type: 3}
       propertyPath: m_Name
       value: Player

@@ -22,11 +22,16 @@ namespace Game
 
         private Rigidbody rb;
         private readonly List<Slice> spawnedSlices = new List<Slice>();
+        [SerializeField] private AudioClip popSound;
 
+        private AudioSource audioSource;
         private void Start()
         {
+            audioSource = GetComponent<AudioSource>();
+            audioSource.loop = false;
+            audioSource.playOnAwake = false;
+            audioSource.clip = popSound;
             rb = GetComponent<Rigidbody>();
-
             SetHorizontalVelocity(velocity);
         }
 
@@ -65,6 +70,7 @@ namespace Game
 
         private void SpawnSlice()
         {
+            audioSource.Play();
             GameObject randomPrefab = GetRandomSlicePrefab();
 
             GameObject newObject = Instantiate(
