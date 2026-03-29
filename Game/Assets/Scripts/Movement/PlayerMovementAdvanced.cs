@@ -72,6 +72,12 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public TextMeshProUGUI text_speed;
     public TextMeshProUGUI text_mode;
 
+    [Header("Custom")]
+    public bool reverseControls;
+
+    float randomHorizontalInputMultiplier;
+    float randomHVerticalInputMultipler;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -80,6 +86,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
         readyToJump = true;
 
         startYScale = transform.localScale.y;
+
+        UpdateRandomMultipliers();
     }
 
     private void Update()
@@ -108,10 +116,24 @@ public class PlayerMovementAdvanced : MonoBehaviour
         MovePlayer();
     }
 
+    private void UpdateRandomMultipliers()
+    {
+        randomHorizontalInputMultiplier = Random.Range(0, 2) == 0 ? -1 : 1;
+        randomHVerticalInputMultipler = Random.Range(0, 2) == 0 ? -1 : 1;
+    }
+
     private void MyInput()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
+
+        if (reverseControls)
+        {
+            horizontalInput *= Random.Range(0, 2) == 0 ? -1 : 1;
+            verticalInput *= Random.Range(0, 2) == 0 ? -1 : 1;
+
+            Invoke("UpdateRandomMultipliers", 2000f);
+        }
 
         // when to jump
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
