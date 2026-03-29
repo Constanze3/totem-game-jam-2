@@ -1,4 +1,4 @@
 public interface IGame
 {
-    public void SetInteractable(Interactable interactable);
+    public void ProvideContext(Interactable interactable, Person person);
 }

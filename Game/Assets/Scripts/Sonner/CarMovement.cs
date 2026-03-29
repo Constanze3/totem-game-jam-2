@@ -6,41 +6,25 @@ public class Carmovement : MonoBehaviour
     public float speed = 1f;
     public int size = 1;
 
-    public Camera gameCamera;
-
-    private float leftEdge;
-    private float rightEdge;
-
-    private void Start()
-    {
-        float halfWidth = gameCamera.orthographicSize * gameCamera.aspect;
-        float camX = gameCamera.transform.position.x;
-
-        leftEdge = camX - halfWidth;
-        rightEdge = camX + halfWidth;
-    }
+    public Sonner sonnerGame;
 
     private void Update()
     {
-        // Check if the object is past the right edge of the screen
-        if (direction.x > 0 && (transform.position.x - size) > rightEdge)
+        var movingRight = 0 < direction.x;
+        var movingLeft = direction.x < 0;
+
+        if (movingRight && sonnerGame.rightEdge < transform.position.x - size)
+        {
+            transform.position = new Vector3(sonnerGame.leftEdge - size, transform.position.z);
+        }
+        else if (movingLeft && transform.position.x + size < sonnerGame.leftEdge)
         {
             transform.position = new Vector3(
-                leftEdge - size,
+                sonnerGame.leftEdge - size,
                 transform.position.y,
                 transform.position.z
             );
         }
-        // Check if the object is past the left edge of the screen
-        else if (direction.x < 0 && (transform.position.x + size) < leftEdge)
-        {
-            transform.position = new Vector3(
-                rightEdge + size,
-                transform.position.y,
-                transform.position.z
-            );
-        }
-        // Move the object
         else
         {
             transform.Translate(speed * Time.deltaTime * direction);

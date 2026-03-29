@@ -1,9 +1,10 @@
-using System.Collections;
 using UnityEngine;
 
 public class Screen : MonoBehaviour
 {
     public Interactable interactable;
+    public Person person;
+
     public string sceneToLoadOnScreen;
 
     public Renderer screenRenderer;
@@ -54,7 +55,7 @@ public class Screen : MonoBehaviour
         materials[screenMaterialIndex] = materialTheCameraInLoadedSceneRendersTo;
         screenRenderer.materials = materials;
 
-        game.SetInteractable(interactable);
+        game.ProvideContext(interactable, person);
     }
 
     public void ClearScreen()
