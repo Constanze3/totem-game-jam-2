@@ -10,7 +10,7 @@ public class TVController : MonoBehaviour
     public float inputDelay = 1.0f;
     public int correctChannelCodeLength = 4;
     public TMP_Text displayText;
-    public Person[] people;
+    public TvPerson[] people;
     public Texture2D[] channelTextures;
 
     private int currentlySatisfiedPersonIndex = 0;
