@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 37dd8ca892e984914a536464bdf28892
+guid: 23469b94a5b544a3aa7466063512cb50
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -38,7 +38,7 @@ ModelImporter:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: card
-    second: {fileID: 2800000, guid: 246cfa5d12c99403180b77783507954a, type: 3}
+    second: {fileID: 2800000, guid: 92824a834ce454f5e97d14087459f69f, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
