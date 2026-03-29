@@ -1,10 +1,12 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
+using TMPro;
+using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 public class SwipeManager : MonoBehaviour
 {
+    public Person person;
+
     [Header("Drag")]
     public Camera mainCamera;
     public float minLocalX = 0f;
@@ -15,7 +17,9 @@ public class SwipeManager : MonoBehaviour
     public float maxTime = 1.0f;
 
     [Header("Checkpoint Failsafe")]
-    [Tooltip("Local X of the end checkpoint. If card passes this without the end trigger being hit, count as too fast.")]
+    [Tooltip(
+        "Local X of the end checkpoint. If card passes this without the end trigger being hit, count as too fast."
+    )]
     public float endCheckpointLocalX = 1.2f;
 
     [Header("Feedback")]
@@ -43,7 +47,8 @@ public class SwipeManager : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (mainCamera == null) return;
+        if (mainCamera == null)
+            return;
 
         _dragging = true;
 
@@ -63,7 +68,8 @@ public class SwipeManager : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        if (!_dragging || mainCamera == null) return;
+        if (!_dragging || mainCamera == null)
+            return;
 
         Vector3 mouseScreen = Input.mousePosition;
         mouseScreen.z = _screenZ;
@@ -103,7 +109,8 @@ public class SwipeManager : MonoBehaviour
 
     public void StartSwipe()
     {
-        if (_swipeStarted) return;
+        if (_swipeStarted)
+            return;
 
         _swipeStarted = true;
         _startSeen = true;
@@ -132,7 +139,10 @@ public class SwipeManager : MonoBehaviour
         else if (swipeTime > maxTime)
             ShowFeedback("Too slow!", Color.red);
         else
-            ShowFeedback("Access granted!", Color.white);
+        {
+            ShowFeedback("Access granted!", Color.green);
+            person.SetRage(0);
+        }
 
         ResetCard();
     }
@@ -148,7 +158,8 @@ public class SwipeManager : MonoBehaviour
 
     private void ShowFeedback(string msg, Color color)
     {
-        if (feedbackText == null) return;
+        if (feedbackText == null)
+            return;
 
         feedbackText.text = msg;
         feedbackText.color = color;

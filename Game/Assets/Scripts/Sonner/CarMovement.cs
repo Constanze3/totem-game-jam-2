@@ -6,31 +6,36 @@ public class Carmovement : MonoBehaviour
     public float speed = 1f;
     public int size = 1;
 
-    private Vector3 leftEdge;
-    private Vector3 rightEdge;
+    public Camera gameCamera;
+
+    private float leftEdge;
+    private float rightEdge;
 
     private void Start()
     {
-        leftEdge = Camera.main.ViewportToWorldPoint(Vector3.zero);
-        rightEdge = Camera.main.ViewportToWorldPoint(Vector3.right);
+        float halfWidth = gameCamera.orthographicSize * gameCamera.aspect;
+        float camX = gameCamera.transform.position.x;
+
+        leftEdge = camX - halfWidth;
+        rightEdge = camX + halfWidth;
     }
 
     private void Update()
     {
         // Check if the object is past the right edge of the screen
-        if (direction.x > 0 && (transform.position.x - size) > rightEdge.x)
+        if (direction.x > 0 && (transform.position.x - size) > rightEdge)
         {
             transform.position = new Vector3(
-                leftEdge.x - size,
+                leftEdge - size,
                 transform.position.y,
                 transform.position.z
             );
         }
         // Check if the object is past the left edge of the screen
-        else if (direction.x < 0 && (transform.position.x + size) < leftEdge.x)
+        else if (direction.x < 0 && (transform.position.x + size) < leftEdge)
         {
             transform.position = new Vector3(
-                rightEdge.x + size,
+                rightEdge + size,
                 transform.position.y,
                 transform.position.z
             );

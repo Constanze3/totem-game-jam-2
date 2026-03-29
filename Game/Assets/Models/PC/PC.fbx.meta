@@ -23,7 +23,7 @@ ModelImporter:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Apple_Magic_Keyboard_-_US_remix_transparent
-    second: {fileID: 2800000, guid: 7b94298a1925342bb9830e52b4a75c5a, type: 3}
+    second: {fileID: 2800000, guid: 4da91360f9fb7954fbeaabeb21bc09a1, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

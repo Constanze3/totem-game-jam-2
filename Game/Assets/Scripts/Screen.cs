@@ -5,27 +5,27 @@ public class Screen : MonoBehaviour
 {
     public Interactable interactable;
     public string sceneToLoadOnScreen;
+
+    public Renderer screenRenderer;
+    public int screenMaterialIndex = 0;
+
     public Material materialTheCameraInLoadedSceneRendersTo;
     public Material screenOffMaterial;
-
-    [Header("Private properties, exposed for debugging")]
-    public new Renderer renderer;
 
     private void OnEnable()
     {
         interactable.OnInteractionStart += ShowScreen;
         interactable.OnInteractionEnd += ClearScreen;
+
+        ClearScreen();
     }
 
     private void OnDisable()
     {
         interactable.OnInteractionStart -= ShowScreen;
         interactable.OnInteractionEnd -= ClearScreen;
-    }
 
-    private void Awake()
-    {
-        renderer = GetComponent<Renderer>();
+        ClearScreen();
     }
 
     public void ShowScreen()
@@ -50,7 +50,10 @@ public class Screen : MonoBehaviour
             );
         }
 
-        renderer.material = materialTheCameraInLoadedSceneRendersTo;
+        var materials = screenRenderer.materials;
+        materials[screenMaterialIndex] = materialTheCameraInLoadedSceneRendersTo;
+        screenRenderer.materials = materials;
+
         game.SetInteractable(interactable);
     }
 
@@ -58,6 +61,10 @@ public class Screen : MonoBehaviour
     {
         Debug.Log("Clearing screen");
 
-        renderer.material = screenOffMaterial;
+        var materials = screenRenderer.materials;
+        materials[screenMaterialIndex] = screenOffMaterial;
+        screenRenderer.materials = materials;
+
+        GetComponent<Renderer>().material = screenOffMaterial;
     }
 }
