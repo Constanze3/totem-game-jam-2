@@ -171,9 +171,16 @@ MonoBehaviour:
   panicButtonPrefab: {fileID: 5549971478059911046, guid: 6bcc434ae9411f84689aa7790503c172, type: 3}
   victoryText: {fileID: 262191805}
   canvas: {fileID: 511477198}
-  sprites: []
+  sprites:
+  - {fileID: -742391204341590453, guid: d47206ded75caf842822785f5bc6aa36, type: 3}
+  - {fileID: -3788263101139435316, guid: 38ad23bdddbb8224aad2237c09584b30, type: 3}
+  - {fileID: -1036502149406497596, guid: 5ac7b02edfa75a948a74f4079652d665, type: 3}
   spawnInterval: 1.5
-  maxPopups: 10
+  maxPopups: 40
+  minWidth: 150
+  maxWidth: 250
+  minHeight: 120
+  maxHeight: 200
 --- !u!1 &262191805
 GameObject:
   m_ObjectHideFlags: 0
