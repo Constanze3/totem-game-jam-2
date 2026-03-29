@@ -15,12 +15,16 @@ public class Carmovement : MonoBehaviour
 
         if (movingRight && sonnerGame.rightEdge < transform.position.x - size)
         {
-            transform.position = new Vector3(sonnerGame.leftEdge - size, transform.position.z);
+            transform.position = new Vector3(
+                sonnerGame.leftEdge - size,
+                transform.position.y,
+                transform.position.z
+            );
         }
         else if (movingLeft && transform.position.x + size < sonnerGame.leftEdge)
         {
             transform.position = new Vector3(
-                sonnerGame.leftEdge - size,
+                sonnerGame.rightEdge + size,
                 transform.position.y,
                 transform.position.z
             );

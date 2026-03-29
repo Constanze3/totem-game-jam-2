@@ -19742,6 +19742,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Screen
   interactable: {fileID: 1514276789}
+  person: {fileID: 505234218}
   sceneToLoadOnScreen: Sonner
   screenRenderer: {fileID: 981268029}
   screenMaterialIndex: 1
