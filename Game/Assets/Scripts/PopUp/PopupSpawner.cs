@@ -16,6 +16,12 @@ public class PopupSpawner : MonoBehaviour
     private bool panicSpawned = false;
     private bool gameOver = false;
 
+    // Min/max size range for popups
+    public float minWidth = 200f;
+    public float maxWidth = 400f;
+    public float minHeight = 150f;
+    public float maxHeight = 300f;
+
     string[] messages = {
         "⚠️ VIRUS DETECTED! Click OK to fix!",
         "Your PC is infected with 47 viruses!",
@@ -57,9 +63,15 @@ public class PopupSpawner : MonoBehaviour
         GameObject popup = Instantiate(popupPrefab, transform);
         RectTransform rt = popup.GetComponent<RectTransform>();
 
+        // Random size for each popup
+        float randW = Random.Range(minWidth, maxWidth);
+        float randH = Random.Range(minHeight, maxHeight);
+        rt.sizeDelta = new Vector2(randW, randH);
+
+        // Random position within screen bounds
         rt.anchoredPosition = new Vector2(
-            Random.Range(-w / 2 + 150, w / 2 - 150),
-            Random.Range(-h / 2 + 100, h / 2 - 100)
+            Random.Range(-w / 2 + randW / 2, w / 2 - randW / 2),
+            Random.Range(-h / 2 + randH / 2, h / 2 - randH / 2)
         );
 
         PopupBehavior pb = popup.GetComponent<PopupBehavior>();
