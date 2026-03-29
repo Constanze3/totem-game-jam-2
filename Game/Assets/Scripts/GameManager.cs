@@ -1,15 +1,66 @@
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public GameObject endScreenPanel;
+
+    public TextMeshProUGUI logsTMP;
+
     [Header("Time Settings")]
-    public float currentTime = 9f; // start at 9:00
+    public float startTime = 9f; // start at 9:00
     public float endTime = 19f; // end at 19:00
     public float dayDuration = 180f; // real seconds for full day
 
+    public float currentTime = 9f;
+
     private bool gameEnded = false;
+
+
+    [Header("Logs Settings")]
+    public int annoyedPenalty;
+    public int angryPenalty;
+    public int ragingPenalty;
+
+    public List<string> logs = new List<string>();
+
+    [System.Serializable]
+    public class SentenceTemplate
+    {
+        public Person.Activity activity;
+        public string template;
+    }
+
+    [SerializeField]
+    private List<SentenceTemplate> templates = new List<SentenceTemplate>()
+    {
+        new SentenceTemplate
+        {
+            activity = Person.Activity.Tv,
+            template = "{name} got {state} because they couldn't watch Mr Beast",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.Tv,
+            template = "{name} is {state} after failing to watch enough brainrot",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.Frogger,
+            template = "{name} became {state} after getting stuck at Frogger",
+        },
+        new SentenceTemplate
+        {
+            activity = Person.Activity.CloseAds,
+            template = "{name} is {state} from getting overwhelmed by ads",
+        },
+    };
 
     void Awake()
     {
@@ -23,6 +74,22 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    void Start()
+    {
+        GameObject[] personObjects = GameObject.FindGameObjectsWithTag("Person");
+        UnityEngine.Debug.Log("People: " + personObjects.Length);
+
+        foreach (GameObject obj in personObjects)
+        {
+            Person person = obj.GetComponent<Person>();
+
+            if (person != null)
+            {
+                person.OnStateChanged += HandlePersonStateChanged;
+            }
+        }
+    }
+
     void Update()
     {
         if (!gameEnded)
@@ -33,11 +100,9 @@ public class GameManager : MonoBehaviour
 
     void UpdateTime()
     {
-        float hoursPerSecond = (endTime - currentTime) / dayDuration;
+        float hoursPerSecond = (endTime - startTime) / dayDuration;
 
         currentTime += hoursPerSecond * Time.deltaTime;
-
-        Debug.Log("Current time: " + GetFormattedTime());
 
         if (currentTime >= endTime)
         {
@@ -50,19 +115,66 @@ public class GameManager : MonoBehaviour
     {
         gameEnded = true;
 
-        Debug.Log("Day finished!");
+        UnityEngine.Debug.Log("Day finished!");
 
         ShowScoreScreen();
     }
 
     void ShowScoreScreen()
     {
-        // TODO:
-        // - Enable UI panel
-        // - Calculate score
-        
-        // Pause game
-        Time.timeScale = 0f;
+        // Enable UI panel
+        endScreenPanel.SetActive(true);
+
+        // Display logs
+        string fullLog = "";
+
+        foreach (string log in logs)
+        {
+            fullLog += log;
+        }
+
+        logsTMP.text = fullLog;
+
+        // Calculate score
+    }
+
+    void HandlePersonStateChanged(Person person, Person.State newState)
+    {
+        UnityEngine.Debug.Log($"{person.personName} changed to {newState}");
+
+        logs.Add(GenerateSentence(person, person.currentState, person.currentActivity));
+    }
+
+    string GenerateSentence(Person person, Person.State state, Person.Activity activity)
+    {
+        // Filter by activity
+        List<SentenceTemplate> validTemplates = templates.FindAll(t => t.activity == activity);
+
+        if (validTemplates.Count == 0)
+            return "";
+
+        var template = validTemplates[Random.Range(0, validTemplates.Count)].template;
+
+        string result = "(" + GetFormattedTime() + ") ";
+
+        result += template
+            .Replace("{name}", person.personName)
+            .Replace("{state}", state.ToString().ToLower());
+
+        if (state == Person.State.Annoyed)
+        {
+            result += " (- " + annoyedPenalty.ToString() + ")";
+        }
+        else if (state == Person.State.Angry)
+        {
+            result += " (- " + angryPenalty.ToString() + ")";
+        }
+        else if (state == Person.State.Raging)
+        {
+            result += " (- " + ragingPenalty.ToString() + ")";
+        }
+
+        return result + "\n";
     }
 
     public float GetNormalizedTime()
