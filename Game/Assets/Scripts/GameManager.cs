@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Text;
+using Game;
 using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public Player player;
 
     [Header("UI")]
     public GameObject endScreenPanel;
