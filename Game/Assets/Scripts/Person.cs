@@ -210,4 +210,9 @@ public class Person : MonoBehaviour
 
         SetState(newState);
     }
+
+    public void Say(string message)
+    {
+        GameManager.Instance.ShowSpeech(transform, message);
+    }
 }
