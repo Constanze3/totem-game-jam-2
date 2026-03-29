@@ -1,11 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class PlayerMovementAdvanced : MonoBehaviour
 {
-    [Header("Movement")] private float moveSpeed;
+    [Header("Movement")]
+    private float moveSpeed;
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
     public float walkSpeed;
@@ -18,27 +18,31 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     public float groundDrag;
 
-    [Header("Jumping")] public float jumpForce;
+    [Header("Jumping")]
+    public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
     bool readyToJump;
 
-    [Header("Crouching")] public float crouchSpeed;
+    [Header("Crouching")]
+    public float crouchSpeed;
     public float crouchYScale;
     private float startYScale;
 
-    [Header("Keybinds")] public KeyCode jumpKey = KeyCode.Space;
+    [Header("Keybinds")]
+    public KeyCode jumpKey = KeyCode.Space;
     public KeyCode sprintKey = KeyCode.LeftShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
 
-    [Header("Ground Check")] public float playerHeight;
+    [Header("Ground Check")]
+    public float playerHeight;
     public LayerMask whatIsGround;
     bool grounded;
 
-    [Header("Slope Handling")] public float maxSlopeAngle;
+    [Header("Slope Handling")]
+    public float maxSlopeAngle;
     private RaycastHit slopeHit;
     private bool exitingSlope;
-
 
     public Transform orientation;
 
@@ -58,7 +62,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         wallrunning,
         crouching,
         sliding,
-        air
+        air,
     }
 
     public bool sliding;
@@ -81,12 +85,16 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private void Update()
     {
         // ground check
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+        grounded = Physics.Raycast(
+            transform.position,
+            Vector3.down,
+            playerHeight * 0.5f + 0.2f,
+            whatIsGround
+        );
 
         MyInput();
         SpeedControl();
         StateHandler();
-        TextStuff();
 
         // handle drag
         if (grounded)
@@ -118,7 +126,11 @@ public class PlayerMovementAdvanced : MonoBehaviour
         // start crouch
         if (Input.GetKeyDown(crouchKey)) //Add this if you want slide "&& horizontalInput == 0 && verticalInput == 0"
         {
-            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                crouchYScale,
+                transform.localScale.z
+            );
             rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
 
             crouching = true;
@@ -127,7 +139,11 @@ public class PlayerMovementAdvanced : MonoBehaviour
         // stop crouch
         if (Input.GetKeyUp(crouchKey))
         {
-            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                startYScale,
+                transform.localScale.z
+            );
 
             crouching = false;
         }
@@ -141,7 +157,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
             state = MovementState.wallrunning;
             desiredMoveSpeed = wallrunSpeed;
         }
-
         // Mode - Sliding
         else if (sliding)
         {
@@ -150,32 +165,27 @@ public class PlayerMovementAdvanced : MonoBehaviour
             // increase speed by one every second
             if (OnSlope() && rb.linearVelocity.y < 0.1f)
                 desiredMoveSpeed = slideSpeed;
-
             else
                 desiredMoveSpeed = sprintSpeed;
         }
-
         // Mode - Crouching
         else if (crouching)
         {
             state = MovementState.crouching;
             desiredMoveSpeed = crouchSpeed;
         }
-
         // Mode - Sprinting
         else if (grounded && Input.GetKey(sprintKey) && !Input.GetKey(crouchKey)) //Change this if you want slide
         {
             state = MovementState.sprinting;
             desiredMoveSpeed = sprintSpeed;
         }
-
         // Mode - Walking
         else if (grounded)
         {
             state = MovementState.walking;
             desiredMoveSpeed = walkSpeed;
         }
-
         // Mode - Air
         else
         {
@@ -231,7 +241,11 @@ public class PlayerMovementAdvanced : MonoBehaviour
                 float slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal);
                 float slopeAngleIncrease = 1 + (slopeAngle / 90f);
 
-                time += Time.deltaTime * speedIncreaseMultiplier * slopeIncreaseMultiplier * slopeAngleIncrease;
+                time +=
+                    Time.deltaTime
+                    * speedIncreaseMultiplier
+                    * slopeIncreaseMultiplier
+                    * slopeAngleIncrease;
             }
             else
                 time += Time.deltaTime * speedIncreaseMultiplier;
@@ -255,17 +269,19 @@ public class PlayerMovementAdvanced : MonoBehaviour
             if (rb.linearVelocity.y > 0)
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
         }
-
         // on ground
         else if (grounded)
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
-
         // in air
         else if (!grounded)
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+            rb.AddForce(
+                moveDirection.normalized * moveSpeed * 10f * airMultiplier,
+                ForceMode.Force
+            );
 
         // turn gravity off while on slope
-        if (!wallrunning) rb.useGravity = !OnSlope();
+        if (!wallrunning)
+            rb.useGravity = !OnSlope();
     }
 
     private void SpeedControl()
@@ -276,7 +292,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
             if (rb.linearVelocity.magnitude > moveSpeed)
                 rb.linearVelocity = rb.linearVelocity.normalized * moveSpeed;
         }
-
         // limiting speed on ground or in air
         else
         {
@@ -310,7 +325,14 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     public bool OnSlope()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        if (
+            Physics.Raycast(
+                transform.position,
+                Vector3.down,
+                out slopeHit,
+                playerHeight * 0.5f + 0.3f
+            )
+        )
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
             return angle < maxSlopeAngle && angle != 0;
@@ -322,19 +344,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public Vector3 GetSlopeMoveDirection(Vector3 direction)
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
-    }
-
-    private void TextStuff()
-    {
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-        if (OnSlope())
-            text_speed.SetText("Speed: " + Round(rb.linearVelocity.magnitude, 1));
-
-        else
-            text_speed.SetText("Speed: " + Round(flatVel.magnitude, 1));
-
-        text_mode.SetText(state.ToString());
     }
 
     public static float Round(float value, int digits)
