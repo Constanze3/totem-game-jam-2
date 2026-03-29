@@ -23,6 +23,7 @@ public class PlayerCam : MonoBehaviour
         {
             transform.position = savedPosition;
             transform.localRotation = Quaternion.Euler(0, 0, 0);
+            transformSaved = false;
         }
 
     }
