@@ -22,7 +22,15 @@ public class Remote : MonoBehaviour
 
     public List<RemoteButton> buttonList = new List<RemoteButton>();
     public static event Action<string> OnRemoteButtonPressed;
-
+    [SerializeField] private AudioClip clickClip;
+    private AudioSource audioSource;
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        audioSource.loop = false;
+        audioSource.playOnAwake = false;
+        audioSource.clip = clickClip;
+    }
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -38,8 +46,8 @@ public class Remote : MonoBehaviour
                 {
                     if (button.buttonObject == hitObject)
                     {
+                        audioSource.Play();
                         OnRemoteButtonPressed?.Invoke(button.name);
-
                         break;
                     }
                 }

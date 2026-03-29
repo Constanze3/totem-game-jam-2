@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(AudioSource))]
 public class Person : MonoBehaviour
@@ -23,9 +24,7 @@ public class Person : MonoBehaviour
     public System.Action<Person, State> OnStateChanged;
 
     public string personName;
-
     public State currentState = State.Idle;
-
     public Activity currentActivity;
 
     [Header("Rage settings")]
@@ -37,34 +36,30 @@ public class Person : MonoBehaviour
     public float angryThreshold = 50f;
     public float ragingThreshold = 75f;
 
+    [Header("Rage UI")]
+    [SerializeField] private Slider rageSlider;
+    [SerializeField] private Image fillImage;
+
+    [Header("Rage Colors")]
+    [SerializeField] private Color idleColor = Color.green;
+    [SerializeField] private Color annoyedColor = Color.yellow;
+    [SerializeField] private Color angryColor = new Color(1f, 0.5f, 0f);
+    [SerializeField] private Color ragingColor = Color.red;
+
     private Animator animator;
     private AnimatorOverrideController overrideController;
 
     [Header("Animation Clips")]
-    [SerializeField]
-    private AnimationClip idleClip;
-
-    [SerializeField]
-    private AnimationClip annoyedClip;
-
-    [SerializeField]
-    private AnimationClip angryClip;
-
-    [SerializeField]
-    private AnimationClip ragingClip;
+    [SerializeField] private AnimationClip idleClip;
+    [SerializeField] private AnimationClip annoyedClip;
+    [SerializeField] private AnimationClip angryClip;
+    [SerializeField] private AnimationClip ragingClip;
 
     [Header("Audio Clips")]
-    [SerializeField]
-    private AudioClip idleAudioClip;
-
-    [SerializeField]
-    private AudioClip annoyedAudioClip;
-
-    [SerializeField]
-    private AudioClip angryAudioClip;
-
-    [SerializeField]
-    private AudioClip ragingAudioClip;
+    [SerializeField] private AudioClip idleAudioClip;
+    [SerializeField] private AudioClip annoyedAudioClip;
+    [SerializeField] private AudioClip angryAudioClip;
+    [SerializeField] private AudioClip ragingAudioClip;
 
     public AudioSource audioSource;
 
@@ -77,22 +72,50 @@ public class Person : MonoBehaviour
     {
         animator = GetComponent<Animator>();
 
-        // Create override controller from the base controller
         overrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
-
         animator.runtimeAnimatorController = overrideController;
 
         UpdateAnimation();
+        UpdateRageUI();
     }
 
     void Update()
     {
         IncreaseRageOverTime();
+        UpdateRageUI();
     }
 
     void IncreaseRageOverTime()
     {
         SetRage(rage + rageRate * Time.deltaTime);
+    }
+
+    void UpdateRageUI()
+    {
+        if (rageSlider != null)
+        {
+            rageSlider.value = rage / maxRage;
+        }
+
+        if (fillImage != null)
+        {
+            if (rage >= ragingThreshold)
+            {
+                fillImage.color = ragingColor;
+            }
+            else if (rage >= angryThreshold)
+            {
+                fillImage.color = angryColor;
+            }
+            else if (rage >= annoyedThreshold)
+            {
+                fillImage.color = annoyedColor;
+            }
+            else
+            {
+                fillImage.color = idleColor;
+            }
+        }
     }
 
     public void SetState(State newState)
@@ -110,7 +133,7 @@ public class Person : MonoBehaviour
 
     void PlayAudioClipForState(State state)
     {
-        switch (currentState)
+        switch (state)
         {
             case State.Idle:
                 audioSource.clip = idleAudioClip;
@@ -131,10 +154,8 @@ public class Person : MonoBehaviour
 
     void UpdateAnimation()
     {
-        // Update animator parameter
         animator.SetInteger("State", (int)currentState);
 
-        // Swap animation clips based on state
         List<KeyValuePair<AnimationClip, AnimationClip>> overrides =
             new List<KeyValuePair<AnimationClip, AnimationClip>>();
 
@@ -180,7 +201,6 @@ public class Person : MonoBehaviour
         overrideController.ApplyOverrides(overrides);
     }
 
-    // Helper to map base clip name
     AnimationClip GetBaseClipName(string clipName)
     {
         foreach (var clip in animator.runtimeAnimatorController.animationClips)
@@ -201,13 +221,18 @@ public class Person : MonoBehaviour
     {
         State newState = State.Idle;
 
-        if (rage > ragingThreshold)
+        if (rage >= ragingThreshold)
             newState = State.Raging;
-        else if (rage > angryThreshold)
+        else if (rage >= angryThreshold)
             newState = State.Angry;
-        else if (rage > annoyedThreshold)
+        else if (rage >= annoyedThreshold)
             newState = State.Annoyed;
 
         SetState(newState);
+    }
+
+    public void Say(string message)
+    {
+        GameManager.Instance.ShowSpeech(transform, message);
     }
 }

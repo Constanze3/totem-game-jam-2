@@ -1,25 +1,39 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
+using TMPro;
+using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 public class SwipeManager : MonoBehaviour
 {
+    public Person person;
+
     [Header("Drag")]
-    public Camera mainCamera;
-    public float minLocalX = 0f;
-    public float maxLocalX = 1.5f;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float minLocalX = 0f;
+    [SerializeField] private float maxLocalX = 1.5f;
 
     [Header("Swipe Timing (seconds)")]
-    public float minTime = 0.2f;
-    public float maxTime = 1.0f;
+    [SerializeField] private float minTime = 0.2f;
+    [SerializeField] private float maxTime = 1.0f;
 
     [Header("Checkpoint Failsafe")]
     [Tooltip("Local X of the end checkpoint. If card passes this without the end trigger being hit, count as too fast.")]
-    public float endCheckpointLocalX = 1.2f;
+    [SerializeField] private float endCheckpointLocalX = 1.2f;
 
     [Header("Feedback")]
-    public TextMeshProUGUI feedbackText;
+    [SerializeField] private TextMeshProUGUI feedbackText;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip wrongsSound;
+    [SerializeField] private AudioClip correctSound;
+    [SerializeField] private AudioClip pickUpSound;
+
+    [Header("Interaction")]
+    [SerializeField] private Interactable interactable;
+
+    [Header("Camera")]
+    [SerializeField] private Transform cameraTeleportTarget;
+    [SerializeField] private Transform cameraTransform;
 
     private bool _dragging;
     private float _grabOffsetX;
@@ -32,26 +46,74 @@ public class SwipeManager : MonoBehaviour
     private bool _endSeen;
 
     private float _screenZ;
+    private AudioSource audioSource;
+
+    private bool gameStarted = false;
 
     private void Awake()
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
 
+        audioSource = GetComponent<AudioSource>();
+        audioSource.loop = false;
+        audioSource.playOnAwake = false;
+
         _startLocalPos = transform.localPosition;
+    }
+
+    private void OnEnable()
+    {
+        if (interactable != null)
+        {
+            interactable.OnInteractionStart += StartGame;
+            interactable.OnInteractionEnd += EndGame;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (interactable != null)
+        {
+            interactable.OnInteractionStart -= StartGame;
+            interactable.OnInteractionEnd -= EndGame;
+        }
+    }
+
+    private void StartGame()
+    {
+        ResetCard();
+        ClearFeedbackImmediate();
+
+        gameStarted = true;
+
+        if (cameraTransform != null && cameraTeleportTarget != null)
+        {
+            cameraTransform.position = cameraTeleportTarget.position;
+            cameraTransform.LookAt(interactable.interactionCameraTarget);
+
+        }
+
+    }
+
+    private void EndGame()
+    {
+        gameStarted = false;
+        _dragging = false;
+        ResetCard();
     }
 
     private void OnMouseDown()
     {
-        if (mainCamera == null) return;
+        if (!gameStarted || mainCamera == null)
+            return;
 
         _dragging = true;
+        audioSource.PlayOneShot(pickUpSound);
 
-        // Cache the card's depth relative to the camera.
         Vector3 screenPoint = mainCamera.WorldToScreenPoint(transform.position);
         _screenZ = screenPoint.z;
 
-        // Get mouse world position at the same screen depth as the card.
         Vector3 mouseScreen = Input.mousePosition;
         mouseScreen.z = _screenZ;
 
@@ -63,7 +125,8 @@ public class SwipeManager : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        if (!_dragging || mainCamera == null) return;
+        if (!gameStarted || !_dragging || mainCamera == null)
+            return;
 
         Vector3 mouseScreen = Input.mousePosition;
         mouseScreen.z = _screenZ;
@@ -78,18 +141,22 @@ public class SwipeManager : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (!gameStarted)
+            return;
+
         _dragging = false;
 
         if (_swipeStarted && !_endSeen)
         {
             ShowFeedback("Bad read!", Color.yellow);
+            audioSource.PlayOneShot(wrongsSound);
             ResetCard();
         }
     }
 
     private void Update()
     {
-        if (!_swipeStarted || _endSeen)
+        if (!gameStarted || !_swipeStarted || _endSeen)
             return;
 
         float currentX = transform.localPosition.x;
@@ -97,13 +164,15 @@ public class SwipeManager : MonoBehaviour
         if (_startSeen && !_endSeen && currentX > endCheckpointLocalX)
         {
             ShowFeedback("Too fast!", Color.red);
+            audioSource.PlayOneShot(wrongsSound);
             ResetCard();
         }
     }
 
     public void StartSwipe()
     {
-        if (_swipeStarted) return;
+        if (!gameStarted || _swipeStarted)
+            return;
 
         _swipeStarted = true;
         _startSeen = true;
@@ -116,11 +185,15 @@ public class SwipeManager : MonoBehaviour
 
     public void EndSwipe()
     {
+        if (!gameStarted)
+            return;
+
         _endSeen = true;
 
         if (!_swipeStarted)
         {
             ShowFeedback("Insert card properly!", Color.yellow);
+            audioSource.PlayOneShot(wrongsSound);
             ResetCard();
             return;
         }
@@ -128,13 +201,27 @@ public class SwipeManager : MonoBehaviour
         float swipeTime = Time.time - _swipeStartTime;
 
         if (swipeTime < minTime)
+        {
             ShowFeedback("Too fast!", Color.red);
+            audioSource.PlayOneShot(wrongsSound);
+            ResetCard();
+        }
         else if (swipeTime > maxTime)
+        {
             ShowFeedback("Too slow!", Color.red);
+            audioSource.PlayOneShot(wrongsSound);
+            ResetCard();
+        }
         else
-            ShowFeedback("Access granted!", Color.green);
+        {
+            ShowFeedback("Access granted!", Color.white);
+            audioSource.PlayOneShot(correctSound);
+            person.SetRage(0);
 
-        ResetCard();
+            gameStarted = false;
+            interactable.EndInteraction();
+            ResetCard();
+        }
     }
 
     public void ResetCard()
@@ -148,7 +235,8 @@ public class SwipeManager : MonoBehaviour
 
     private void ShowFeedback(string msg, Color color)
     {
-        if (feedbackText == null) return;
+        if (feedbackText == null)
+            return;
 
         feedbackText.text = msg;
         feedbackText.color = color;
@@ -160,6 +248,14 @@ public class SwipeManager : MonoBehaviour
     private IEnumerator ClearFeedback()
     {
         yield return new WaitForSeconds(2f);
+
+        if (feedbackText != null)
+            feedbackText.text = "";
+    }
+
+    private void ClearFeedbackImmediate()
+    {
+        StopAllCoroutines();
 
         if (feedbackText != null)
             feedbackText.text = "";
