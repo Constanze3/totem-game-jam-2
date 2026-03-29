@@ -4,7 +4,7 @@ public class DummyGame : MonoBehaviour, IGame
 {
     private Interactable interactable;
 
-    public void SetInteractable(Interactable interactable)
+    public void ProvideContext(Interactable interactable, Person _person)
     {
         this.interactable = interactable;
     }

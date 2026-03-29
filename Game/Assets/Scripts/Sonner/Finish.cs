@@ -3,14 +3,16 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class Finish : MonoBehaviour
 {
-    public GameObject son;
+    public Son son;
+    public Sonner sonner;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            Sonner sonner = collision.GetComponent<Sonner>();
-            sonner.Respawn();
+            sonner.interactable.EndInteraction();
+            sonner.person.SetRage(0);
+            son.Respawn();
         }
     }
 }
