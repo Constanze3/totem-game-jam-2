@@ -27797,8 +27797,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.FoodSpawner
   pointA: {fileID: 59283866}
   pointB: {fileID: 1880446177}
-  velocity: 0
-  velocityIncreasePerFreeze: 0
+  velocity: 1
+  velocityIncreasePerFreeze: 0.6
   slicePrefabs:
   - {fileID: 4064154493103910958, guid: a79408bf2b7824027ae5abcf5d60f8bd, type: 3}
   - {fileID: 7070578191071207412, guid: 2e3ecc609579543a5bce0a741a10b6a0, type: 3}
@@ -27809,7 +27809,9 @@ MonoBehaviour:
   slicesToWin: 10
   popSound: {fileID: 8300000, guid: 324bbe8b64d52485e9b7e7abd4b23c18, type: 3}
   interactable: {fileID: 1856928907}
+  winSound: {fileID: 8300000, guid: a378ded04089b9947904cc498a9b0475, type: 3}
   person: {fileID: 897110237}
+  inFoodCubeCount: 0
 --- !u!1001 &1983808705
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27892,6 +27894,59 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 897110239}
   m_SourcePrefab: {fileID: 100100000, guid: 89e6de064611a450091448a7ffe90b95, type: 3}
+--- !u!1 &1997130874
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1997130876}
+  - component: {fileID: 1997130875}
+  m_Layer: 0
+  m_Name: Plate (1)
+  m_TagString: FoodCube
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &1997130875
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1997130874}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.029433403, y: 0.028992789, z: 0.005914109}
+  m_Center: {x: -0.0000100729085, y: -0.00050888205, z: -0.000028923781}
+--- !u!4 &1997130876
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1997130874}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071067}
+  m_LocalPosition: {x: -2.26, y: 2.11, z: -10.23}
+  m_LocalScale: {x: 59.711697, y: 59.711697, z: 651.45624}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2004917700
 GameObject:
   m_ObjectHideFlags: 0
@@ -28674,6 +28729,7 @@ SceneRoots:
   - {fileID: 1554905692}
   - {fileID: 1983808705}
   - {fileID: 1432753197}
+  - {fileID: 1997130876}
   - {fileID: 206651329}
   - {fileID: 1856928903}
   - {fileID: 1759442238}

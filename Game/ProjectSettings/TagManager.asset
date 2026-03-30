@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Person
   - Game
+  - FoodCube
   layers:
   - Default
   - TransparentFX
