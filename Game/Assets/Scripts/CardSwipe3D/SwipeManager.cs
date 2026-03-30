@@ -8,32 +8,46 @@ public class SwipeManager : MonoBehaviour
     public Person person;
 
     [Header("Drag")]
-    [SerializeField] private Camera mainCamera;
-    [SerializeField] private float minLocalX = 0f;
-    [SerializeField] private float maxLocalX = 1.5f;
+    [SerializeField]
+    private Camera mainCamera;
+
+    [SerializeField]
+    private float minLocalX = 0f;
+
+    [SerializeField]
+    private float maxLocalX = 1.5f;
 
     [Header("Swipe Timing (seconds)")]
-    [SerializeField] private float minTime = 0.2f;
-    [SerializeField] private float maxTime = 1.0f;
+    [SerializeField]
+    private float minTime = 0.2f;
+
+    [SerializeField]
+    private float maxTime = 1.0f;
 
     [Header("Checkpoint Failsafe")]
-    [Tooltip("Local X of the end checkpoint. If card passes this without the end trigger being hit, count as too fast.")]
-    [SerializeField] private float endCheckpointLocalX = 1.2f;
+    [Tooltip(
+        "Local X of the end checkpoint. If card passes this without the end trigger being hit, count as too fast."
+    )]
+    [SerializeField]
+    private float endCheckpointLocalX = 1.2f;
 
     [Header("Feedback")]
-    [SerializeField] private TextMeshProUGUI feedbackText;
+    [SerializeField]
+    private TextMeshProUGUI feedbackText;
 
     [Header("Audio")]
-    [SerializeField] private AudioClip wrongsSound;
-    [SerializeField] private AudioClip correctSound;
-    [SerializeField] private AudioClip pickUpSound;
+    [SerializeField]
+    private AudioClip wrongsSound;
+
+    [SerializeField]
+    private AudioClip correctSound;
+
+    [SerializeField]
+    private AudioClip pickUpSound;
 
     [Header("Interaction")]
-    [SerializeField] private Interactable interactable;
-
-    [Header("Camera")]
-    [SerializeField] private Transform cameraTeleportTarget;
-    [SerializeField] private Transform cameraTransform;
+    [SerializeField]
+    private Interactable interactable;
 
     private bool _dragging;
     private float _grabOffsetX;
@@ -86,14 +100,6 @@ public class SwipeManager : MonoBehaviour
         ClearFeedbackImmediate();
 
         gameStarted = true;
-
-        if (cameraTransform != null && cameraTeleportTarget != null)
-        {
-            cameraTransform.position = cameraTeleportTarget.position;
-            cameraTransform.LookAt(interactable.interactionCameraTarget);
-
-        }
-
     }
 
     private void EndGame()

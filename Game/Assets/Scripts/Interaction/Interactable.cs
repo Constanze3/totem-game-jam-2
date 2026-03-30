@@ -1,15 +1,25 @@
 using System;
+using System.Collections;
 using Game;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class Interactable : MonoBehaviour
 {
-    public Transform interactionCameraTarget;
-    public AudioClip audioClip;
+    public Transform inInteractionCameraTransform;
+    public float interactionCameraAnimationMovementSpeed;
+    public float interactionCameraAnimationRotationSpeed;
+
     public AudioSource audioSource;
+    public AudioClip interactionStartAudioClip;
+    public AudioClip interactionEndAudioClip;
 
     [Header("Private properties, exposed for debugging")]
+    public Vector3 originalCameraPosition;
+    public Quaternion originalCameraRotation;
     public bool inInteraction;
+    public PlayerCam playerCameraScript;
+    public Coroutine cameraAnimation;
 
     public event Action OnInteractionStart;
     public event Action OnInteractionEnd;
@@ -17,6 +27,11 @@ public class Interactable : MonoBehaviour
     public void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+    }
+
+    public void Start()
+    {
+        playerCameraScript = GameManager.Instance.player.playerCameraScript;
     }
 
     public void StartInteraction()
@@ -30,8 +45,22 @@ public class Interactable : MonoBehaviour
 
         inInteraction = true;
 
-        audioSource.clip = audioClip;
-        audioSource.Play();
+        if (interactionStartAudioClip != null)
+        {
+            audioSource.clip = interactionStartAudioClip;
+            audioSource.Play();
+        }
+
+        originalCameraPosition = playerCameraScript.gameObject.transform.position;
+        originalCameraRotation = playerCameraScript.gameObject.transform.rotation;
+        cameraAnimation = StartCoroutine(
+            playerCameraScript.SmoothMoveCamera(
+                inInteractionCameraTransform.position,
+                inInteractionCameraTransform.rotation,
+                interactionCameraAnimationMovementSpeed,
+                interactionCameraAnimationRotationSpeed
+            )
+        );
 
         OnInteractionStart?.Invoke();
     }
@@ -43,11 +72,35 @@ public class Interactable : MonoBehaviour
             return;
         }
 
-        Debug.Log("Stop interaction");
+        inInteraction = false;
+
+        Debug.Log("Interaction ended");
 
         audioSource.Stop();
-        OnInteractionEnd?.Invoke();
+        if (interactionEndAudioClip != null)
+        {
+            audioSource.clip = interactionEndAudioClip;
+            audioSource.Play();
+        }
 
-        inInteraction = false;
+        if (cameraAnimation != null)
+        {
+            StopCoroutine(cameraAnimation);
+        }
+        cameraAnimation = StartCoroutine(EndInteractionCoroutine());
+    }
+
+    private IEnumerator EndInteractionCoroutine()
+    {
+        yield return StartCoroutine(
+            playerCameraScript.SmoothMoveCamera(
+                originalCameraPosition,
+                originalCameraRotation,
+                interactionCameraAnimationMovementSpeed,
+                interactionCameraAnimationRotationSpeed
+            )
+        );
+
+        OnInteractionEnd?.Invoke();
     }
 }

@@ -47,11 +47,20 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private bool exitingSlope;
 
     [Header("Footsteps")]
-    [SerializeField] private AudioClip footstepClip;
-    [SerializeField] private float baseFootstepVolume = 0.5f;
-    [SerializeField] private float walkPitch = 1f;
-    [SerializeField] private float sprintPitch = 1.2f;
-    [SerializeField] private float crouchPitch = 0.85f;
+    [SerializeField]
+    private AudioClip footstepClip;
+
+    [SerializeField]
+    private float baseFootstepVolume = 0.5f;
+
+    [SerializeField]
+    private float walkPitch = 1f;
+
+    [SerializeField]
+    private float sprintPitch = 1.2f;
+
+    [SerializeField]
+    private float crouchPitch = 0.85f;
 
     public Transform orientation;
 
@@ -82,14 +91,24 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public TextMeshProUGUI text_speed;
     public TextMeshProUGUI text_mode;
 
+    private void OnEnable()
+    {
+        rb.isKinematic = false;
+    }
+
     private void OnDisable()
     {
         audioSource.Stop();
+        rb.isKinematic = true;
+    }
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
     }
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
         audioSource = GetComponent<AudioSource>();
@@ -300,10 +319,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
     {
         bool hasMovementInput = horizontalInput != 0 || verticalInput != 0;
         bool shouldPlay =
-            grounded
-            && hasMovementInput
-            && !wallrunning
-            && state != MovementState.air;
+            grounded && hasMovementInput && !wallrunning && state != MovementState.air;
 
         if (footstepClip == null)
             return;

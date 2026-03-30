@@ -65,7 +65,5 @@ public class Screen : MonoBehaviour
         var materials = screenRenderer.materials;
         materials[screenMaterialIndex] = screenOffMaterial;
         screenRenderer.materials = materials;
-
-        GetComponent<Renderer>().material = screenOffMaterial;
     }
 }

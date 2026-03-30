@@ -1,3 +1,4 @@
+using System.Collections;
 using DG.Tweening;
 using Unity.Mathematics;
 using UnityEngine;
@@ -25,7 +26,6 @@ public class PlayerCam : MonoBehaviour
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             transformSaved = false;
         }
-
     }
 
     private void OnDisable()
@@ -63,12 +63,27 @@ public class PlayerCam : MonoBehaviour
         transform.DOLocalRotate(new Vector3(0, 0, zTilt), 0.25f);
     }
 
-    public void LookAt(Transform target)
+    public IEnumerator SmoothMoveCamera(
+        Vector3 toPosition,
+        Quaternion toRotation,
+        float movementSpeed,
+        float rotationSpeed
+    )
     {
-        var towardsTarget = target.position - transform.position;
-        var rotation = Quaternion.LookRotation(towardsTarget, Vector3.up).eulerAngles;
+        while (Vector3.Distance(transform.position, toPosition) > 0.01)
+        {
+            // Exponential decay
+            var position = Vector3.Lerp(transform.position, toPosition, movementSpeed);
+            transform.position = position;
 
-        camHolder.rotation = Quaternion.Euler(rotation.x, rotation.y, 0);
-        orientation.rotation = Quaternion.Euler(0, rotation.y, 0);
+            // Exponential decay
+            var rotation = Quaternion.Slerp(transform.rotation, toRotation, rotationSpeed);
+            transform.rotation = rotation;
+
+            yield return null;
+        }
+
+        transform.position = toPosition;
+        transform.rotation = toRotation;
     }
 }

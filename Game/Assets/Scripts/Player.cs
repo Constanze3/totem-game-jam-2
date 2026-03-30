@@ -65,7 +65,6 @@ namespace Game
                 if (interactable != null && !interactable.inInteraction)
                 {
                     Lock();
-                    playerCameraScript.LookAt(interactable.interactionCameraTarget);
                     interactable.StartInteraction();
                     currentInteraction = interactable;
                     interactable.OnInteractionEnd += OnInteractionEnd;

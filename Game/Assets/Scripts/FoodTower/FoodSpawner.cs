@@ -6,38 +6,52 @@ namespace Game
 {
     public class FoodSpawner : MonoBehaviour
     {
-        [SerializeField] private GameObject pointA;
-        [SerializeField] private GameObject pointB;
+        [SerializeField]
+        private GameObject pointA;
 
-        [SerializeField] private float velocity = 1f;
-        [SerializeField] private float velocityIncreasePerFreeze = 0.5f;
+        [SerializeField]
+        private GameObject pointB;
 
-        [SerializeField] private List<GameObject> slicePrefabs = new List<GameObject>();
+        [SerializeField]
+        private float velocity = 1f;
 
-        [SerializeField] private float spawnCooldown = 0.5f;
+        [SerializeField]
+        private float velocityIncreasePerFreeze = 0.5f;
+
+        [SerializeField]
+        private List<GameObject> slicePrefabs = new List<GameObject>();
+
+        [SerializeField]
+        private float spawnCooldown = 0.5f;
         private float spawnCooldownTimer = 0f;
 
-        [SerializeField] private int slicesToWin = 10;
+        [SerializeField]
+        private int slicesToWin = 10;
         private int frozenSliceCount = 0;
         private bool hasWon = false;
 
         private Rigidbody rb;
         private readonly List<Slice> spawnedSlices = new List<Slice>();
 
-        [SerializeField] private AudioClip popSound;
-        [SerializeField] private Interactable interactable;
+        [SerializeField]
+        private AudioClip popSound;
+
+        [SerializeField]
+        private Interactable interactable;
         private AudioSource audioSource;
 
-        private bool gameStarted = false;
+        [SerializeField]
+        private AudioClip winSound;
 
-        [SerializeField] private Transform cameraTeleportTarget;
-        [SerializeField] private Transform cameraTransform;
+        private bool gameStarted = false;
 
         public Person person;
 
         private float initialVelocity;
         private Vector3 initialPosition;
         private Quaternion initialRotation;
+
+        public int inFoodCubeCount = 0;
 
         private void Start()
         {
@@ -72,8 +86,6 @@ namespace Game
             ResetGame();
 
             gameStarted = true;
-            cameraTransform.position = cameraTeleportTarget.position;
-            cameraTransform.LookAt(interactable.interactionCameraTarget);
         }
 
         private void EndGame()
@@ -158,7 +170,10 @@ namespace Game
 
             frozenSliceCount++;
 
-            if (frozenSliceCount >= slicesToWin)
+            if (
+                frozenSliceCount >= slicesToWin
+                || (inFoodCubeCount == slicesToWin && frozenSliceCount >= slicesToWin - 4)
+            )
             {
                 WinGame();
                 return;
@@ -182,6 +197,9 @@ namespace Game
             interactable.EndInteraction();
             person.SetRage(0);
 
+            audioSource.clip = winSound;
+            audioSource.Play();
+
             Debug.Log("You win!");
         }
 
@@ -197,6 +215,7 @@ namespace Game
         {
             hasWon = false;
             frozenSliceCount = 0;
+            inFoodCubeCount = 0;
             spawnCooldownTimer = 0f;
             velocity = initialVelocity;
 

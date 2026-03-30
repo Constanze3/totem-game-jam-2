@@ -154,4 +154,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   movementThreshold: 0.01
-  freezeTimer: 3
+  freezeTimer: 1.5
+  hitClip: {fileID: 0}

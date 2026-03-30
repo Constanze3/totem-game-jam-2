@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game
@@ -10,27 +12,53 @@ namespace Game
         private Vector3 lastPosition;
         private float stillTimer = 0f;
 
-        [SerializeField] private float movementThreshold = 0.01f;
-        [SerializeField] private float freezeTimer = 2f;
+        [SerializeField]
+        private float movementThreshold = 0.01f;
+
+        [SerializeField]
+        private float freezeTimer = 2f;
 
         private bool hasFrozen = false;
-        [SerializeField] private AudioClip hitClip;
+
+        [SerializeField]
+        private AudioClip hitClip;
         private AudioSource audioSource;
 
         private bool hasHitGround = false;
+
         private void Start()
         {
             audioSource = GetComponent<AudioSource>();
             rb = GetComponent<Rigidbody>();
             lastPosition = transform.position;
         }
+
         private void OnCollisionEnter(Collision collision)
         {
-            if (hasHitGround) return;
+            if (hasHitGround)
+                return;
             hasHitGround = true;
             audioSource.PlayOneShot(hitClip);
-
         }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.CompareTag("FoodCube"))
+            {
+                spawner.inFoodCubeCount += 1;
+                Debug.Log("FoodCube Enter " + spawner.inFoodCubeCount);
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.gameObject.CompareTag("FoodCube"))
+            {
+                spawner.inFoodCubeCount -= 1;
+                Debug.Log("FoodCube Exit " + spawner.inFoodCubeCount);
+            }
+        }
+
         public void SetSpawner(FoodSpawner foodSpawner)
         {
             spawner = foodSpawner;
