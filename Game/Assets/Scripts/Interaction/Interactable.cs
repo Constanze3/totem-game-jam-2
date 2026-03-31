@@ -14,12 +14,19 @@ public class Interactable : MonoBehaviour
     public AudioClip interactionStartAudioClip;
     public AudioClip interactionEndAudioClip;
 
+    [TextArea]
+    public string hoverHintText;
+
+    [TextArea]
+    public string inInteractionHintText;
+
     [Header("Private properties, exposed for debugging")]
     public Vector3 originalCameraPosition;
     public Quaternion originalCameraRotation;
     public bool inInteraction;
     public PlayerCam playerCameraScript;
     public Coroutine cameraAnimation;
+    public HintManager hintManager;
 
     public event Action OnInteractionStart;
     public event Action OnInteractionEnd;
@@ -31,6 +38,7 @@ public class Interactable : MonoBehaviour
 
     public void Start()
     {
+        hintManager = GameManager.Instance.hintManager;
         playerCameraScript = GameManager.Instance.player.playerCameraScript;
     }
 
@@ -44,6 +52,8 @@ public class Interactable : MonoBehaviour
         Debug.Log("Start interaction");
 
         inInteraction = true;
+
+        hintManager.ShowHint(inInteractionHintText);
 
         if (interactionStartAudioClip != null)
         {
@@ -75,6 +85,8 @@ public class Interactable : MonoBehaviour
         inInteraction = false;
 
         Debug.Log("Interaction ended");
+
+        hintManager.HideHint();
 
         audioSource.Stop();
         if (interactionEndAudioClip != null)

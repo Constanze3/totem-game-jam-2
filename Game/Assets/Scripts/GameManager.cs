@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public Player player;
+    public HintManager hintManager;
 
     [Header("UI")]
     public GameObject endScreenPanel;
